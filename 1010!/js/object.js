@@ -54,6 +54,7 @@ Brick.prototype.remove = function() {
  */
 function BrickList(position, brickAmout) {
     this.list = [];
+    this.amount = brickAmout;
     this.dom;
     //TODO create Element and set  position.  eg:this.dom = document.createElement();
 
@@ -66,7 +67,6 @@ function BrickList(position, brickAmout) {
 BrickList.prototype.remove = function(id) {
     this.list[id].remove();
 }
-
 //空
 BrickList.prototype.isEmpty = function(id) {
     for (var i = 0; i < list.length; i++) {
@@ -76,7 +76,7 @@ BrickList.prototype.isEmpty = function(id) {
 }
 //
 BrickList.prototype.reCreate = function() {
-    for (var i = 0; i < brickAmout; i++) {
+    for (var i = 0; i < this.amount; i++) {
         list[i] = new Brick(i, color.random(), position, matrix.random());
     }
 }
@@ -123,7 +123,7 @@ Table.prototype.clear = function(rows, cols) {
 }
 
 /**
- * brick在棋盘table上是否重叠
+ * brick在棋盘table上是否重叠,i纵坐标,j横坐标
  * return false 重叠
  * return [[row,col], .. ],不重叠,table上的这些点需要变色
  */

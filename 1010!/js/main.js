@@ -1,50 +1,35 @@
-var color = {
-    default: '';
-    colorList: ['', '', '', ''],
-    random: function() {
-        return colorList[Math.floor(Math.random() * colorList.length)];
-    }
-};
-var matrix = {
-    matrixList: ['', '', ''],
-    random: function() {
-        return matrixList[Math.floor(Math.random() * matrixList.length)];
-    }
-};
-
-var params = {
-    currentBrick = null,
-    flag: false
-};
-/*
+/**
  * game start
  */
+
 //init table
 var tableRow = 10;
 var tableCol = 10;
 var table = new Table(position, tableRow, tableCol);
+
 //init bircks
 var brickAmount = 3;
-var brickList = [];
-for (var i = 0; i < brickAmount; i++) {
-     brickList[i]=new Brick(i, color.random(), position, matrix.random());
-}
+var brickList = new BrickList(position,brickAmount);
+
+//TODO get square height and width;
+var squareHeight = squareWidth = ;
 
 //add mouse event
 document.onmouseup = function(e) {
     if (params.flag) {
-        var updatePosition = table.checkNoCover(params.currentBrick);
-        if (updatePosition) {
+        //TODO 获取brick左上角相对于table左上角的距离left和top
+        var left,top;
 
-            //更新table
-            table.update(updatePosition, params.currentBrick.color);
+        var updatePosition = table.checkNoCover(params.currentBrick,Math.round(top/squareHeight),Math.round(left/squareWidth));
+        if (updatePosition) {
             //更新block
             params.currentBrick.remove();
-            //TODO 更新blockList
-            /*for (var i = 0; i < brickAmount; i++) {
-                brickList[i]=new Brick(id, color.random(), position, matrix.random());
-            }*/
-            //行列满
+            //更新blockList
+            if(brickList.isEmpty()){
+                brickList.reCreate();
+            }
+            //更新table
+            table.update(updatePosition, params.currentBrick.color);
             var clearPosition = table.needClear()
             if (clearPosition) {
                 table.clear(clearPosition[0], clearPosition[1], color.default);
@@ -52,13 +37,13 @@ document.onmouseup = function(e) {
             //game over
             var notOver = table.checkPossible(brickList);
             if (!notOver) {
-                gameOver();
+                alert('game over');
             }
         }
     }
 }
 document.onmousemove = function(event) {
     if (params.flag) {
-        //TODO 
+        //TODO 动画效果
     }
 }
