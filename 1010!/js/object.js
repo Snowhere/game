@@ -14,6 +14,7 @@ Square.prototype.changeColor = function(color) {
     this.dom.className = color;
 }
 
+
 /**
  * 可拖动的游戏块
  */
@@ -29,7 +30,7 @@ function Brick(id, color, position, matrix) {
     for (var n = 0; n < matrix.length; n++) {
         for (var m = 0; m < matrix[0].length; m++) {
             if (matrix[n][m]) {
-                squars.push(new Square(squarId, this.color, squarePosition));//TODO squarePositon 通过n,m和设定的边长确定
+                squars.push(new Square(squarId, this.color, squarePosition)); //TODO squarePositon 通过n,m和设定的边长确定
             } else {
                 squars.push(new Square(squarId, color.default, squarePosition));
             }
@@ -46,8 +47,9 @@ function Brick(id, color, position, matrix) {
 //移除
 Brick.prototype.remove = function() {
     this.state = 0;
-    //TODO this.dom.remove
+    this.dom.parentNode.removeChild(this.dom);
 }
+
 
 /**
  * 游戏块列表
@@ -63,10 +65,12 @@ function BrickList(position, brickAmout) {
         list[i] = new Brick(i, color.random(), position, matrix.random());
     }
 }
+
 //移除
 BrickList.prototype.remove = function(id) {
     this.list[id].remove();
 }
+
 //空
 BrickList.prototype.isEmpty = function(id) {
     for (var i = 0; i < list.length; i++) {
@@ -74,12 +78,15 @@ BrickList.prototype.isEmpty = function(id) {
     }
     return true;
 }
-//
+
+//重新生成
 BrickList.prototype.reCreate = function() {
     for (var i = 0; i < this.amount; i++) {
         list[i] = new Brick(i, color.random(), position, matrix.random());
     }
 }
+
+
 /**
  * 棋盘
  */
@@ -122,11 +129,9 @@ Table.prototype.clear = function(rows, cols) {
     }
 }
 
-/**
- * brick在棋盘table上是否重叠,i纵坐标,j横坐标
- * return false 重叠
- * return [[row,col], .. ],不重叠,table上的这些点需要变色
- */
+//brick在棋盘table上是否重叠,i纵坐标,j横坐标
+//return false 重叠
+//return [[row,col], .. ],不重叠,table上的这些点需要变色
 Table.prototype.checkNoCover = function(brick, i, j) {
     var result = [];
     if (i + brick.matrix.length > this.matrix.length || j + brick.matrix[0].length > this.matrix[0].length) return false;
@@ -143,11 +148,9 @@ Table.prototype.checkNoCover = function(brick, i, j) {
     return result;
 }
 
-/**
- * brickList中brick在棋盘table上是否可放置
- * return false 不可放置
- * return [[row,col], .. ],可放置,table上的这些点需要变色
- */
+//brickList中brick在棋盘table上是否可放置
+//return false 不可放置
+//return [[row,col], .. ],可放置,table上的这些点需要变色
 Table.prototype.checkPossible = function(brickList) {
     for (var n = 0; n < brickList.length; n++) {
         if (brickList[n].state == 1) {
@@ -165,11 +168,9 @@ Table.prototype.checkPossible = function(brickList) {
     return false;
 }
 
-/*
- * table检测是否饱满要消除
- * return false 不需要
- * return [[row1,row2],[col1,col2]]需要清除的行列
- */
+//table检测是否饱满要消除
+//return false 不需要
+//return [[row1,row2],[col1,col2]]需要清除的行列
 function needClear() {
 
 }
