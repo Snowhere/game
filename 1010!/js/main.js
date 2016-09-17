@@ -5,8 +5,8 @@ var gameWidth = window.screen.width < 520 ? (window.screen.width - 50) : 500;
  */
 
 //init table
-var tableRow = 16;
-var tableCol = 10;
+var tableRow = 10;
+var tableCol = 16;
 var table = new Table(gameWidth, tableRow, tableCol);
 
 //init bircks

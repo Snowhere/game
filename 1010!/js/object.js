@@ -22,7 +22,7 @@ Square.prototype.changeColor = function(color) {
 
 
 /**
- * 可拖动的游戏块
+ * 游戏块
  */
 function Brick(id, color, matrix, fatherDom, length, left) {
     this.state = 1; //state 1 show,0 remove
