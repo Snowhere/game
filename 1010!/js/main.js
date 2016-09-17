@@ -1,18 +1,20 @@
+var gameWidth = window.screen.width < 520 ? (window.screen.width - 50) : 500;
+
 /**
  * game start
  */
 
 //init table
-var tableRow = 10;
+var tableRow = 16;
 var tableCol = 10;
-var table = new Table(position, tableRow, tableCol);
+var table = new Table(gameWidth, tableRow, tableCol);
 
 //init bircks
-var brickAmount = 3;
-var brickList = new BrickList(position,brickAmount);
-
+var brickAmount = 5;
+var brickList = new BrickList(gameWidth,brickAmount);
+/*
 //TODO get square height and width;
-var squareHeight = squareWidth = ;
+var squareHeight = squareWidth = 0;
 
 //add mouse event
 document.onmouseup = function(e) {
@@ -47,3 +49,4 @@ document.onmousemove = function(event) {
         //TODO 动画效果
     }
 }
+*/

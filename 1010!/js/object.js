@@ -1,11 +1,17 @@
 /**
  * 最小单元:方块
  */
-function Square(id, color, position) {
+function Square(id, color, fatherDom, length, top, left) {
     this.color = color;
-    //TODO create Element and set id, position and color. eg:this.dom = document.createElement();
-    this.dom
+    this.dom = document.createElement('div');
+    this.dom.id = id;
     this.dom.className = color;
+    this.dom.style.width = length * 0.9 + 'px';
+    this.dom.style.height = length * 0.9 + 'px';
+    this.dom.style.top = top + 'px';
+    this.dom.style.left = left + 'px';
+    this.dom.style.position = 'absolute';
+    fatherDom.appendChild(this.dom);
 }
 
 //改变颜色
@@ -18,25 +24,29 @@ Square.prototype.changeColor = function(color) {
 /**
  * 可拖动的游戏块
  */
-function Brick(id, color, position, matrix) {
+function Brick(id, color, matrix, fatherDom, length, left) {
     this.state = 1; //state 1 show,0 remove
     this.matrix = matrix;
+    this.squares = [];
     this.color = color;
-    this.dom;
-    this.squars = [];
-    //TODO create Element and set id, position.  eg:this.dom = document.createElement();
-
+    //dom
+    this.dom = document.createElement('div');
+    this.dom.id = id;
+    this.dom.style.width = length + 'px';
+    this.dom.style.height = length + 'px';
+    this.dom.style.position = 'relative';
+    this.dom.style.float = 'left';
     //create Squares
-    for (var n = 0; n < matrix.length; n++) {
-        for (var m = 0; m < matrix[0].length; m++) {
-            if (matrix[n][m]) {
-                squars.push(new Square(squarId, this.color, squarePosition)); //TODO squarePositon 通过n,m和设定的边长确定
+    for (var i = 0; i < matrix.length; i++) {
+        for (var j = 0; j < matrix[0].length; j++) {
+            if (matrix[i][j]) {
+                this.squares.push(new Square('bs-' + i + '-' + j, this.color, this.dom, length / 5 * 0.9, length / 5 * i * 0.9, length / 5 * j * 0.9));//0.9防止相邻两个brick相连
             } else {
-                squars.push(new Square(squarId, color.default, squarePosition));
+                this.squares.push(new Square('bs-' + i + '-' + j, color.default, this.dom, length / 5 * 0.9, length / 5 * i * 0.9, length / 5 * j * 0.9));
             }
         }
     }
-
+    fatherDom.appendChild(this.dom);
     this.dom.addEventListener('mousedown', function(e) {
         param.flag = true;
         param.currenBrick = this;
@@ -54,15 +64,15 @@ Brick.prototype.remove = function() {
 /**
  * 游戏块列表
  */
-function BrickList(position, brickAmout) {
+function BrickList(gameWidth, brickAmout) {
     this.list = [];
     this.amount = brickAmout;
-    this.dom;
-    //TODO create Element and set  position.  eg:this.dom = document.createElement();
+    this.dom = document.getElementById('bricks');
+    this.dom.style.width = gameWidth + 'px';
+    this.dom.style.height = gameWidth / brickAmout + 'px';
 
-    //TODO create bricks
     for (var i = 0; i < brickAmout; i++) {
-        list[i] = new Brick(i, color.random(), position, matrix.random());
+        this.list[i] = new Brick('b' + '-' + i, color.random(), matrix.random(), this.dom, gameWidth / brickAmout, gameWidth / brickAmout * i);
     }
 }
 
@@ -90,26 +100,27 @@ BrickList.prototype.reCreate = function() {
 /**
  * 棋盘
  */
-function Table(position, row, col) {
+function Table(gameWidth, row, col) {
     this.matrix = [];
-    this.squars = [];
-    this.dom;
+    this.squares = [];
+    this.dom = document.getElementById('table');
+    this.dom.style.width = gameWidth + 'px';
+    this.dom.style.height = gameWidth / col * row + 'px';
     //create matrix and Squares;
-    for (var i = 0; i <= 100; i++) {
+    for (var i = 0; i < row; i++) {
         this.matrix[i] = []
-        for (var j = 0; j <= 100; j++) {
+        for (var j = 0; j < col; j++) {
             this.matrix[i][j] = 0;
-            squars.push(new Square(squarId, color.default, squarPosition));
+            this.squares.push(new Square('t-' + i + '-' + j, color.default, this.dom, gameWidth / col, gameWidth / col * i, gameWidth / col * j));
         }
     }
-    //TODO create Element and set id, position. eg:this.dom = document.createElement();
 }
 
 //更新色块
 Table.prototype.update = function(positionList, color) {
     for (var i = 0; i < positionList.length; i++) {
         this.matrix[positionList[i][0], positionList[i][1]] = 1;
-        this.squars[positionList[i][0] * this.matrix[0].length + positionList[i][1]].changeColor(color); //Square.changeColor
+        this.squares[positionList[i][0] * this.matrix[0].length + positionList[i][1]].changeColor(color); //Square.changeColor
     }
 }
 
@@ -118,13 +129,13 @@ Table.prototype.clear = function(rows, cols) {
     for (var i = 0; i < rows.length; i++) {
         for (var j = 0; j < matrix[0].length; j++) {
             this.matrix[rows[i], j] = 0;
-            this.squars[rows[i] * this.matrix[0].length + j].changeColor(color.default); //Square.changeColor
+            this.squares[rows[i] * this.matrix[0].length + j].changeColor(color.default); //Square.changeColor
         }
     }
     for (var i = 0; i < cols.length; i++) {
         for (var j = 0; j < matrix.length; j++) {
             this.matrix[j, cols[i]] = 0;
-            this.squars[j * this.matrix[0].length + cols[i]].changeColor(color.default); //Square.changeColor
+            this.squares[j * this.matrix[0].length + cols[i]].changeColor(color.default); //Square.changeColor
         }
     }
 }

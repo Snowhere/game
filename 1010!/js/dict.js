@@ -1,8 +1,8 @@
 var color = {
-    default: 'default';
+    default: 'default',
     colorList: ['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9'],
     random: function() {
-        return colorList[Math.floor(Math.random() * colorList.length)];
+        return this.colorList[Math.floor(Math.random() * this.colorList.length)];
     }
 };
 
@@ -34,11 +34,11 @@ var matrix = {
         [[0,0,1],[0,0,1],[1,1,1]]
     ],
     random: function() {
-        return matrixList[Math.floor(Math.random() * matrixList.length)];
+        return this.matrixList[Math.floor(Math.random() * this.matrixList.length)];
     }
 };
 
 var params = {
-    currentBrick = null,
+    currentBrick : null,
     flag: false
 };
