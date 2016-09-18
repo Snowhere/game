@@ -11,6 +11,7 @@ function Square(id, color, fatherDom, length, top, left) {
     this.dom.style.top = top + 'px';
     this.dom.style.left = left + 'px';
     this.dom.style.position = 'absolute';
+    this.dom.style.borderRadius = '5px';
     fatherDom.appendChild(this.dom);
 }
 
@@ -24,7 +25,7 @@ Square.prototype.changeColor = function(color) {
 /**
  * 游戏块
  */
-function Brick(id, color, matrix, fatherDom, length, left) {
+function Brick(id, color, matrix, fatherDom, length, left, top, canDrag) {
     this.state = 1; //state 1 show,0 remove
     this.matrix = matrix;
     this.squares = [];
@@ -34,30 +35,52 @@ function Brick(id, color, matrix, fatherDom, length, left) {
     this.dom.id = id;
     this.dom.style.width = length + 'px';
     this.dom.style.height = length + 'px';
-    this.dom.style.position = 'relative';
-    this.dom.style.float = 'left';
+    this.dom.style.position = 'absolute';
+    this.dom.style.left = left + 'px';
+    this.dom.style.top = top + 'px';
     //create Squares
     for (var i = 0; i < matrix.length; i++) {
         for (var j = 0; j < matrix[0].length; j++) {
             if (matrix[i][j]) {
-                this.squares.push(new Square('bs-' + i + '-' + j, this.color, this.dom, length / 5 * 0.9, length / 5 * i * 0.9, length / 5 * j * 0.9));//0.9防止相邻两个brick相连
+                this.squares.push(new Square('bs-' + i + '-' + j, this.color, this.dom, length / 5, length / 5 * i, length / 5 * j));
             } else {
-                this.squares.push(new Square('bs-' + i + '-' + j, color.default, this.dom, length / 5 * 0.9, length / 5 * i * 0.9, length / 5 * j * 0.9));
+                // this.squares.push(new Square('bs-' + i + '-' + j, color.default, this.dom, length / 5 * 0.9, length / 5 * i * 0.9, length / 5 * j * 0.9));
             }
         }
     }
     fatherDom.appendChild(this.dom);
-    this.dom.addEventListener('mousedown', function(e) {
-        param.flag = true;
-        param.currenBrick = this;
-        //TODO addDragEvent
-    });
+    if (canDrag) {
+        var that = this;
+        this.dom.onmousedown = function(e) {
+            param.currentBrick = that;
+            that.hide();
+            //var x = page.layerX(e);
+            //var y = page.layerY(e);
+            param.dragBrick = new Brick('drag', that.color, that.matrix, document.body, gameWidth / tableCol * 5, getPosition(this).x, getPosition(this).y, false);
+            param.x = page.layerX(e);
+            param.y = page.layerY(e);
+            console.log(param.x);
+            console.log(param.y);
+            document.onmouseup = up;
+            document.onmousemove = move;
+        }
+    }
 }
 
 //移除
 Brick.prototype.remove = function() {
     this.state = 0;
     this.dom.parentNode.removeChild(this.dom);
+}
+
+//隐藏
+Brick.prototype.hide = function() {
+    this.dom.style.visibility = 'hidden';
+}
+
+//展示
+Brick.prototype.show = function() {
+    this.dom.style.visibility = '';
 }
 
 
@@ -72,19 +95,14 @@ function BrickList(gameWidth, brickAmout) {
     this.dom.style.height = gameWidth / brickAmout + 'px';
 
     for (var i = 0; i < brickAmout; i++) {
-        this.list[i] = new Brick('b' + '-' + i, color.random(), matrix.random(), this.dom, gameWidth / brickAmout, gameWidth / brickAmout * i);
+        this.list[i] = new Brick('b' + '-' + i, color.random(), matrix.random(), this.dom, gameWidth / brickAmout * 0.9, gameWidth / brickAmout * i, 0, true); //0.9防止相邻两个brick相连
     }
-}
-
-//移除
-BrickList.prototype.remove = function(id) {
-    this.list[id].remove();
 }
 
 //空
 BrickList.prototype.isEmpty = function(id) {
-    for (var i = 0; i < list.length; i++) {
-        if (list[i].state == 1) return false;
+    for (var i = 0; i < this.list.length; i++) {
+        if (this.list[i].state == 1) return false;
     }
     return true;
 }
@@ -92,7 +110,7 @@ BrickList.prototype.isEmpty = function(id) {
 //重新生成
 BrickList.prototype.reCreate = function() {
     for (var i = 0; i < this.amount; i++) {
-        list[i] = new Brick(i, color.random(), position, matrix.random());
+        this.list[i] = new Brick('b' + '-' + i, color.random(), matrix.random(), this.dom, gameWidth / this.amount * 0.9, gameWidth / this.amount * i, 0, true); //0.9防止相邻两个brick相连
     }
 }
 
@@ -119,7 +137,7 @@ function Table(gameWidth, row, col) {
 //更新色块
 Table.prototype.update = function(positionList, color) {
     for (var i = 0; i < positionList.length; i++) {
-        this.matrix[positionList[i][0], positionList[i][1]] = 1;
+        this.matrix[positionList[i][0]][positionList[i][1]] = 1;
         this.squares[positionList[i][0] * this.matrix[0].length + positionList[i][1]].changeColor(color); //Square.changeColor
     }
 }
@@ -163,12 +181,12 @@ Table.prototype.checkNoCover = function(brick, i, j) {
 //return false 不可放置
 //return [[row,col], .. ],可放置,table上的这些点需要变色
 Table.prototype.checkPossible = function(brickList) {
-    for (var n = 0; n < brickList.length; n++) {
-        if (brickList[n].state == 1) {
-            for (var i = 0; i <= this.matrix.length - brickList[n].matrix.length; i++) {
-                for (var j = 0; j <= this.matrix[0].length - brickList[n].matrix[0].length; j++) {
+    for (var n = 0; n < brickList.list.length; n++) {
+        if (brickList.list[n].state == 1) {
+            for (var i = 0; i <= this.matrix.length - brickList.list[n].matrix.length; i++) {
+                for (var j = 0; j <= this.matrix[0].length - brickList.list[n].matrix[0].length; j++) {
                     //定点i,j
-                    var result = this.checkNoCover(brickList[n], i, j);
+                    var result = this.checkNoCover(brickList.list[n], i, j);
                     if (result) {
                         return result;
                     }
@@ -182,6 +200,7 @@ Table.prototype.checkPossible = function(brickList) {
 //table检测是否饱满要消除
 //return false 不需要
 //return [[row1,row2],[col1,col2]]需要清除的行列
-function needClear() {
-
+Table.prototype.needClear = function() {
+    return false;
+    //TODO
 }

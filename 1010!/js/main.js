@@ -6,47 +6,55 @@ var gameWidth = window.screen.width < 520 ? (window.screen.width - 50) : 500;
 
 //init table
 var tableRow = 10;
-var tableCol = 16;
+var tableCol = 10;
 var table = new Table(gameWidth, tableRow, tableCol);
 
 //init bircks
 var brickAmount = 5;
-var brickList = new BrickList(gameWidth,brickAmount);
-/*
-//TODO get square height and width;
-var squareHeight = squareWidth = 0;
+var brickList = new BrickList(gameWidth, brickAmount);
 
-//add mouse event
-document.onmouseup = function(e) {
-    if (params.flag) {
-        //TODO 获取brick左上角相对于table左上角的距离left和top
-        var left,top;
+var squareWidth = gameWidth / tableCol;
 
-        var updatePosition = table.checkNoCover(params.currentBrick,Math.round(top/squareHeight),Math.round(left/squareWidth));
-        if (updatePosition) {
-            //更新block
-            params.currentBrick.remove();
-            //更新blockList
-            if(brickList.isEmpty()){
-                brickList.reCreate();
-            }
-            //更新table
-            table.update(updatePosition, params.currentBrick.color);
-            var clearPosition = table.needClear()
-            if (clearPosition) {
-                table.clear(clearPosition[0], clearPosition[1], color.default);
-            }
-            //game over
-            var notOver = table.checkPossible(brickList);
-            if (!notOver) {
-                alert('game over');
-            }
+//mouse event
+function up(e) {
+    var updatePosition = false;
+    var dragPosition = getPosition(param.dragBrick.dom);
+    var tablePosition = getPosition(table.dom);
+    if (dragPosition.x < tablePosition.x || dragPosition.y < tablePosition.y || dragPosition.x - table.dom.offsetWidth > tablePosition.x || dragPosition.y - table.dom.offsetHeight > tablePosition.y) {
+        updatePosition = false; //越界
+    } else {
+        updatePosition = table.checkNoCover(param.dragBrick, Math.round((dragPosition.y - tablePosition.y) / squareWidth), Math.round((dragPosition.x - tablePosition.x) / squareWidth));
+    }
+    if (updatePosition) {
+        param.currentBrick.remove();
+        //更新blockList
+        if (brickList.isEmpty()) {
+            brickList.reCreate();
         }
+        //更新table
+        table.update(updatePosition, param.dragBrick.color);
+        var clearPosition = table.needClear();
+        if (clearPosition) {
+            table.clear(clearPosition[0], clearPosition[1], color.default);
+        }
+        //game over
+        var notOver = table.checkPossible(brickList);
+        if (!notOver) {
+            document.getElementById('info').innerHTML = 'game over';
+        }
+    } else {
+        param.currentBrick.show();
     }
+    //删掉dragBrick
+    param.dragBrick.remove();
+    //异常鼠标事件
+    document.onmouseup = null;
+    document.onmousemove = null;
 }
-document.onmousemove = function(event) {
-    if (params.flag) {
-        //TODO 动画效果
-    }
+
+function move(e) {
+    var tx = page.pageX(e) - param.x;
+    var ty = page.pageY(e) - param.y;
+    param.dragBrick.dom.style.left = tx + "px";
+    param.dragBrick.dom.style.top = ty + "px";
 }
-*/

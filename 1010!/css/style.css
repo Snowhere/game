@@ -7,20 +7,20 @@
     margin: 15px 0;
 }
 
-#title h1 {
+#info {
     text-align: center;
     font-size: 4rem;
     font-family: Monaco, Consolas, 'Courier New';
     letter-spacing: 8px;
 }
 
-
 #table {
     position: relative;
     margin: 0 auto;
 }
 
-#table div {
+#table div,
+#drag {
     border-radius: 5px;
 }
 

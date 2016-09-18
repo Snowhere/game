@@ -38,7 +38,46 @@ var matrix = {
     }
 };
 
-var params = {
-    currentBrick : null,
-    flag: false
+
+var page = {
+    event: function(evt) {
+        var ev = evt || window.event;
+        return ev;
+    },
+    pageX: function(evt) {
+        var e = this.event(evt);
+        return e.pageX || (e.clientX + document.body.scrollLeft - document.body.clientLeft);
+    },
+    pageY: function(evt) {
+        var e = this.event(evt);
+        return e.pageY || (e.clientY + document.body.scrollTop - document.body.clientTop);
+
+    },
+    layerX: function(evt) {
+        var e = this.event(evt);
+        return e.layerX || e.offsetX;
+    },
+    layerY: function(evt) {
+        var e = this.event(evt);
+        return e.layerY || e.offsetY;
+    }
+}
+
+var param = {
+    dragBrick:null,
+    currentBrick:null,
+    x:null,
+    y:null
 };
+
+
+function getPosition(e) {
+    var x = 0,
+        y = 0;
+    while (e != null) {
+        x += e.offsetLeft;
+        y += e.offsetTop;
+        e = e.offsetParent;
+    }
+    return { x: x, y: y };
+}
