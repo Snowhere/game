@@ -51,17 +51,33 @@ function Brick(id, color, matrix, fatherDom, length, left, top, canDrag) {
     fatherDom.appendChild(this.dom);
     if (canDrag) {
         var that = this;
-        this.dom.onmousedown = function(e) {
-            param.currentBrick = that;
-            that.hide();
-            //var x = page.layerX(e);
-            //var y = page.layerY(e);
-            param.dragBrick = new Brick('drag', that.color, that.matrix, document.body, gameWidth / tableCol * 5, getPosition(this).x, getPosition(this).y, false);
-            param.x = page.layerX(e);
-            param.y = page.layerY(e);
-            document.onmouseup = up;
-            document.onmousemove = move;
+        if ('ontouchend' in document) {
+            this.dom.addEventListener('touchstart', function(e) {
+                e = e.touches[0];
+                param.currentBrick = that;
+                that.hide();
+                //var x = page.layerX(e);
+                //var y = page.layerY(e);
+                param.dragBrick = new Brick('drag', that.color, that.matrix, document.body, gameWidth / tableCol * 5, getPosition(this).x, getPosition(this).y, false);
+                param.x = page.pageX(e) - getPosition(this).x;
+                param.y = page.pageY(e) - getPosition(this).y;
+                document.addEventListener('touchmove', move, false);
+                document.addEventListener('touchend', up, false);
+            }, false);
+        } else {
+            this.dom.onmousedown = function(e) {
+                param.currentBrick = that;
+                that.hide();
+                //var x = page.layerX(e);
+                //var y = page.layerY(e);
+                param.dragBrick = new Brick('drag', that.color, that.matrix, document.body, gameWidth / tableCol * 5, getPosition(this).x, getPosition(this).y, false);
+                param.x = page.layerX(e);
+                param.y = page.layerY(e);
+                document.onmouseup = up;
+                document.onmousemove = move;
+            }
         }
+
     }
 }
 

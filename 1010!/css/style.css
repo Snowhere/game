@@ -7,11 +7,24 @@
     margin: 15px 0;
 }
 
-#info {
+#titleInfo {
     text-align: center;
     font-size: 4rem;
     font-family: Monaco, Consolas, 'Courier New';
-    letter-spacing: 8px;
+}
+
+#scoreInfo {
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-size: 1rem;
+    font-family: Monaco, Consolas, 'Courier New';
+}
+
+#info {
+    text-align: center;
+    font-size: 1rem;
+    font-family: Monaco, Consolas, 'Courier New';
 }
 
 #table {
