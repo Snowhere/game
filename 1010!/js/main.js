@@ -10,11 +10,11 @@ var tableCol = 10;
 var table = new Table(gameWidth, tableRow, tableCol);
 
 //init bircks
-var brickAmount = 5;
+var brickAmount = 3;
 var brickList = new BrickList(gameWidth, brickAmount);
 
 var squareWidth = gameWidth / tableCol;
-
+var score = 0;
 //mouse event
 function up(e) {
     var updatePosition = false;
@@ -34,13 +34,14 @@ function up(e) {
         //更新table
         table.update(updatePosition, param.dragBrick.color);
         var clearPosition = table.needClear();
-        if (clearPosition) {
+        if (clearPosition[0].length||clearPosition[1].length) {
             table.clear(clearPosition[0], clearPosition[1], color.default);
+            score+=clearPosition[0].length+clearPosition[1].length;
         }
         //game over
         var notOver = table.checkPossible(brickList);
         if (!notOver) {
-            document.getElementById('info').innerHTML = 'game over';
+            document.getElementById('info').innerHTML = 'game over,score:'+score;
         }
     } else {
         param.currentBrick.show();

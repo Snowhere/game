@@ -59,8 +59,6 @@ function Brick(id, color, matrix, fatherDom, length, left, top, canDrag) {
             param.dragBrick = new Brick('drag', that.color, that.matrix, document.body, gameWidth / tableCol * 5, getPosition(this).x, getPosition(this).y, false);
             param.x = page.layerX(e);
             param.y = page.layerY(e);
-            console.log(param.x);
-            console.log(param.y);
             document.onmouseup = up;
             document.onmousemove = move;
         }
@@ -145,14 +143,14 @@ Table.prototype.update = function(positionList, color) {
 //消除行列
 Table.prototype.clear = function(rows, cols) {
     for (var i = 0; i < rows.length; i++) {
-        for (var j = 0; j < matrix[0].length; j++) {
-            this.matrix[rows[i], j] = 0;
+        for (var j = 0; j < this.matrix[0].length; j++) {
+            this.matrix[rows[i]][j] = 0;
             this.squares[rows[i] * this.matrix[0].length + j].changeColor(color.default); //Square.changeColor
         }
     }
     for (var i = 0; i < cols.length; i++) {
-        for (var j = 0; j < matrix.length; j++) {
-            this.matrix[j, cols[i]] = 0;
+        for (var j = 0; j < this.matrix.length; j++) {
+            this.matrix[j][cols[i]] = 0;
             this.squares[j * this.matrix[0].length + cols[i]].changeColor(color.default); //Square.changeColor
         }
     }
@@ -201,6 +199,21 @@ Table.prototype.checkPossible = function(brickList) {
 //return false 不需要
 //return [[row1,row2],[col1,col2]]需要清除的行列
 Table.prototype.needClear = function() {
-    return false;
-    //TODO
+    var rows = [];
+    var cols = [];
+    for (var i = this.matrix.length - 1; i >= 0; i--) {
+        var sum = 0;
+        for (var j = this.matrix[0].length - 1; j >= 0; j--) {
+            sum += this.matrix[i][j];
+        }
+        if (sum == this.matrix[0].length) { rows.push(i); }
+    }
+    for (var i = this.matrix[0].length - 1; i >= 0; i--) {
+        var sum = 0;
+        for (var j = this.matrix.length - 1; j >= 0; j--) {
+            sum += this.matrix[j][i];
+        }
+        if (sum == this.matrix.length) { cols.push(i); }
+    }
+    return [rows, cols];
 }
