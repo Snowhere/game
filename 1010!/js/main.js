@@ -1,5 +1,5 @@
 var gameWidth = window.screen.width < 520 ? (window.screen.width - 50) : 500;
-document.getElementById('info').style.visibility = 'hidden';
+document.getElementById('info').style.display = 'none';
 /**
  * game start
  */
@@ -44,7 +44,7 @@ function up(e) {
         var notOver = table.checkPossible(brickList);
         if (!notOver) {
             document.getElementById('titleInfo').innerHTML = 'game over';
-            document.getElementById('info').style.visibility = '';
+            document.getElementById('info').style.display = 'block';
         }
     } else {
         param.currentBrick.show();

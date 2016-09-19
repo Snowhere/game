@@ -39,21 +39,8 @@
 
 #bricks {
     position: relative;
-    margin: 40px auto;
+    margin: 10px auto;
 }
-
-
-/*@media screen and (max-width: 520px) {
-    #container {  width: 500px;
-    height: 500px;}
-}
-@media screen and (min-width: 520px) {
-    #container {  width: 500px;
-    height: 500px;}
-}*/
-
-
-/* random color */
 
 .c1 {
     background-color: #7B68EE;
