@@ -1,0 +1,195 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Game</title>
+   
+</head>
+
+<body>
+<a href="/1010">1010</a>
+<a href="/2020">2020</a>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://js.zzubox.com/jquery-1.11.2.min.js"></script>
+    <script type="text/javascript">
+    // 对Date的扩展，将 Date 转化为指定格式的String   
+    // 月(M)、日(d)、小时(h)、分(m)、秒(s)、季度(q) 可以用 1-2 个占位符，   
+    // 年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字)   
+    // 例子：   
+    // (new Date()).Format("yyyy-MM-dd hh:mm:ss.S") ==> 2006-07-02 08:09:04.423   
+    // (new Date()).Format("yyyy-M-d h:m:s.S")      ==> 2006-7-2 8:9:4.18   
+    Date.prototype.Format = function(fmt) { //author: meizz   
+        var o = {
+            "M+": this.getMonth() + 1, //月份   
+            "d+": this.getDate(), //日   
+            "h+": this.getHours(), //小时   
+            "m+": this.getMinutes(), //分   
+            "s+": this.getSeconds(), //秒   
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度   
+            "S": this.getMilliseconds() //毫秒   
+        };
+        if (/(y+)/.test(fmt))
+            fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt))
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    }
+    var socket = io();
+    var limit = 30;
+    //维护div的队列
+    var messageDivList = [];
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+
+
+    function load(msgList) {
+        $.each(messageDivList, function(index, messageDiv) {
+            $(messageDiv).remove();
+        })
+
+        messageDivList = [];
+        for (var i = msgList.length - 1; i >= 0; i--) {
+            add(msgList[i]);
+        }
+    }
+
+    function getPosition(div) {
+        div.style.top = Math.random() * (height-320) + 100 + "px";
+        div.style.left = Math.random() * (width - 400) + 60 + "px";
+    }
+
+    function add(msg) {
+        var div = document.createElement("div");
+        var main = document.getElementById("main");
+
+        getPosition(div);
+        div.className = "contentlist";
+        content = "";
+        content += "<span class='time'>[" + msg.time + "]</span><br>";
+        content += "<span class='name'>" + msg.name + "</span>";
+        content += "<p> 说 : </p>";
+        content += "<span class='content'>" + replace_express(msg.content) + "</span>";
+        div.innerHTML = content;
+
+        main.appendChild(div);
+        //维护div数组
+        messageDivList.unshift(div);
+        if (messageDivList.length > limit) {
+            $(messageDivList.pop()).remove();
+        }
+    }
+
+    //监听在线人数 
+    socket.on('chat number', function(msg) {
+        $('#onlineNum').html(msg);
+    });
+
+
+
+    //实时监听聊天数据
+    socket.on('chat message', function(msg) {
+        add(msg);
+        $("#words").focus();
+    });
+
+    //发送聊天内容
+    function saysomething() {
+        var say = $("#words").val();
+        var name = $("#nickname").val();
+        if (say == null || say.trim() == "" || say.length > 100) {
+            $("#message").html("内容不能为空，也不能过长");
+            return;
+        } else if (name.length > 20) {
+            $("#message").html("名字太长了啦");
+            return;
+        } else if (name.trim() == "" || name == null) {
+            name = "不知道是谁";
+        } {
+            socket.emit('chat message', {
+                name: name,
+                time: new Date().Format("yyyy-MM-dd hh:mm:ss"),
+                content: say
+            });
+            $("#words").val("");
+            $("#words").focus();
+        }
+    }
+
+    /*
+     *TM的正则表达式就是一种新语言，和加密一样，写匹配的时候行云流水，读匹配的时候举步维艰。
+     *替换规则:表情的代号(如"#12")-->图片标签(如"<img src='12.gif'/>")
+     */
+    function replace_express(text) {　　
+        var re = new RegExp("#([0-9]{2})", "g"); //"()"定义pattern,供后面调用,全局匹配。
+        var img_tag = text.replace(re, "<img src='image/$1.gif'/>"); //替换,$1取的pattern的值
+        　
+        return img_tag;
+    }
+
+    $(document).ready(function() {
+        document.getElementById("main").style.height=width>591?height-180+"px":"auto";
+        //初次载入聊天记录
+        $.getJSON('/getMessageList', {
+            num: limit
+        }, function(messageList) {
+            load(messageList);
+        });
+        //填充表情输入框
+        var str = "";
+        for (var i = 1; i <= 33; i++) {
+            var number = i;
+            if (i < 10) number = "0" + i;
+            str += "<img title='#" + number + "' class='express' src='image/" + number + ".gif'></img>"
+            //if (i % 17 == 0) str += "<br>"
+        }
+        str += "<br>输入框中仅仅显示的表情代号，不要介意";
+        $("#express_div").html(str);
+
+        //显示表情框
+        $("#express_button").click(function() {
+            $("#express_div").toggle("slow");
+        });
+        //添加表情
+        $(".express").click(function() {
+            $("#words").val($("#words").val() + $(this).attr("title"));
+        });
+
+        //添加发送按钮事件，并监听回车键发送
+        $("#say").click(function() {
+            saysomething();
+        });
+        $("#words").focus(function() {
+            $("#message").html("");
+        });
+        $(document).keydown(function(event) {
+            if (event.keyCode == 13) {
+                saysomething();
+
+            }
+        });
+
+        //调整屏幕显示数量
+        $(":radio").click(function() {
+            limit = $(this).val();
+            $.getJSON('/getMessageList', {
+                num: limit
+            }, function(messageList) {
+                load(messageList);
+            });
+        });
+        $(window).resize(function() {
+            width = window.innerWidth;            
+            height = window.innerHeight<500?500:window.innerHeight;
+            document.getElementById("main").style.height=width>591?height-180+"px":"auto";
+            $.each(messageDivList, function(index, div) {
+                getPosition(div);
+            })
+        });
+    });
+    </script>
+</body>
+
+</html>
