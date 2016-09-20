@@ -21,7 +21,7 @@ function up(e) {
     var updatePosition = false;
     var dragPosition = getPosition(param.dragBrick.dom);
     var tablePosition = getPosition(table.dom);
-    if (dragPosition.x < tablePosition.x || dragPosition.y < tablePosition.y || dragPosition.x - table.dom.offsetWidth > tablePosition.x || dragPosition.y - table.dom.offsetHeight > tablePosition.y) {
+    if (dragPosition.x < tablePosition.x - squareWidth / 2 || dragPosition.y < tablePosition.y - squareWidth / 2 || dragPosition.x - table.dom.offsetWidth > tablePosition.x + squareWidth / 2 || dragPosition.y - table.dom.offsetHeight > tablePosition.y + squareWidth / 2) {
         updatePosition = false; //越界
     } else {
         updatePosition = table.checkNoCover(param.dragBrick, Math.round((dragPosition.y - tablePosition.y) / squareWidth), Math.round((dragPosition.x - tablePosition.x) / squareWidth));
