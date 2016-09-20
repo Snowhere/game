@@ -1,4 +1,4 @@
-var gameWidth = window.screen.width < 520 ? (window.screen.width - 50) : 500;
+var gameWidth = document.body.clientWidth < 520 ? (document.body.clientWidth - 50) : 500;
 document.getElementById('info').style.display = 'none';
 /**
  * game start
