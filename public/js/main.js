@@ -4,8 +4,8 @@ document.getElementById('info').style.display = 'none';
  * game start
  */
 //init table
-var tableRow = 8;
-var tableCol = 8;
+var tableRow = 4;
+var tableCol = 4;
 var table = new Table(gameWidth, tableRow, tableCol);
 
 //init bircks
@@ -48,14 +48,7 @@ function up(e) {
         //game over
         var notOver = table.checkPossible(brickList);
         if (!notOver) {
-            document.getElementById('titleInfo').innerHTML = 'game over';
-            document.getElementById('info').style.display = 'block';
-            if (window.XMLHttpRequest) {
-                var xhr = new XMLHttpRequest();
-            } else {
-                var xhr = new ActiveXObject('Microsoft.XMLHTTP');
-            }
-            xhr.open('GET', "/score?score=" + score, true);
+            gg();
         }
     } else {
         param.currentBrick.show();
@@ -76,4 +69,22 @@ function move(e) {
     var ty = page.pageY(e) - param.y;
     param.dragBrick.dom.style.left = tx + "px";
     param.dragBrick.dom.style.top = ty + "px";
+}
+
+function gg() {
+    document.getElementById('titleInfo').innerHTML = 'game over';
+    document.getElementById('info').style.display = 'block';
+    $.get('/score', { 'score': score }, function(result) {
+        layer.msg('得分:' + score + ',全球排名:' + (parseInt(result[0].num)+1), {
+            time: 0,
+            btn: ['再来一局'],
+            yes: function(index) {
+                layer.close(index);
+                table.reCreate();
+                brickList.reCreate();
+                score = 0;
+                document.getElementById('score').innerHTML = score;
+            }
+        });
+    });
 }

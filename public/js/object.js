@@ -123,6 +123,9 @@ BrickList.prototype.isEmpty = function(id) {
 
 //重新生成
 BrickList.prototype.reCreate = function() {
+    for(var i=this.dom.children.length-1;i>=0;i--){
+         this.dom.removeChild(this.dom.children[i]);
+    }
     for (var i = 0; i < this.amount; i++) {
         this.list[i] = new Brick('b' + '-' + i, color.random(), matrix.random(), this.dom, gameWidth / this.amount * 0.9, gameWidth / this.amount * i, 0, true); //0.9防止相邻两个brick相连
     }
@@ -168,6 +171,16 @@ Table.prototype.clear = function(rows, cols) {
         for (var j = 0; j < this.matrix.length; j++) {
             this.matrix[j][cols[i]] = 0;
             this.squares[j * this.matrix[0].length + cols[i]].changeColor(color.default); //Square.changeColor
+        }
+    }
+}
+
+Table.prototype.reCreate = function() {
+    for (var i = 0; i < this.matrix.length; i++) {
+        for (var j = 0; j < this.matrix[0].length; j++) {
+            this.matrix[i][j] = 0;
+            this.squares[i * this.matrix[0].length + j].changeColor(color.default); //Square.changeColor
+
         }
     }
 }
