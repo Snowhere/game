@@ -124,7 +124,9 @@ BrickList.prototype.isEmpty = function(id) {
 //重新生成
 BrickList.prototype.reCreate = function() {
     for (var i = 0; i < this.amount; i++) {
-        this.list[i] = new Brick('b' + '-' + i, color.random(), matrix.random(), this.dom, gameWidth / this.amount * 0.9, gameWidth / this.amount * i, 0, true); //0.9防止相邻两个brick相连
+        if (!this.list[i] || this.list[i].state === 0) {
+            this.list[i] = new Brick('b' + '-' + i, color.random(), matrix.random(), this.dom, gameWidth / this.amount * 0.9, gameWidth / this.amount * i, 0, true); //0.9防止相邻两个brick相连
+        }
     }
 }
 
