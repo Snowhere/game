@@ -29,9 +29,7 @@ function up(e) {
     if (updatePosition) {
         param.currentBrick.remove();
         //更新blockList
-        if (brickList.isEmpty()) {
-            brickList.reCreate();
-        }
+        brickList.reCreate();
         //更新table
         table.update(updatePosition, param.dragBrick.color);
         var clearPosition = table.needClear();
