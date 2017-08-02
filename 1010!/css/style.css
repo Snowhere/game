@@ -80,4 +80,29 @@
 
 .default {
     background-color: #DDDDDD;
+    animation:clearAnimation 0.6s;
+    -webkit-animation:clearAnimation 0.6s; 
+    -moz-animation:clearAnimation 0.6s; 
+    -ms-animation:clearAnimation 0.6s; 
+}
+
+@keyframes clearAnimation{
+    0% {background-color: #D6D6D3;}
+    50% {background-color: #9A9F9D;}
+    100% {background-color: #D6D6D3;}
+}
+@-webkit-keyframes clearAnimation{
+    0% {background-color: #D6D6D3;}
+    50% {background-color: #9A9F9D;}
+    100% {background-color: #D6D6D3;}
+}
+@-moz-keyframes clearAnimation{
+    0% {background-color: #D6D6D3;}
+    50% {background-color: #9A9F9D;}
+    100% {background-color: #D6D6D3;}
+}
+@-ms-keyframes clearAnimation{
+    0% {background-color: #D6D6D3;}
+    50% {background-color: #9A9F9D;}
+    100% {background-color: #D6D6D3;}
 }

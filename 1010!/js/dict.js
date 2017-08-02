@@ -64,8 +64,11 @@ var page = {
 }
 
 var param = {
+    //移动的brick
     dragBrick:null,
+    //选中的brick
     currentBrick:null,
+    //触摸位置在dragBrick中位置，用于移动计算绝对位置
     x:null,
     y:null
 };

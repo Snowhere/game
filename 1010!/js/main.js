@@ -4,13 +4,16 @@ document.getElementById('info').style.display = 'none';
  * game start
  */
 //init table
-var tableRow = 8;
-var tableCol = 8;
+var tableRow = 6;
+var tableCol = 6;
 var table = new Table(gameWidth, tableRow, tableCol);
 
 //init bircks
 var brickAmount = 3;
 var brickList = new BrickList(gameWidth, brickAmount);
+
+//immediate create brick
+var immediate = true;
 
 var squareWidth = gameWidth / tableCol;
 var score = 0;
@@ -26,16 +29,20 @@ function up(e) {
     } else {
         updatePosition = table.checkNoCover(param.dragBrick, Math.round((dragPosition.y - tablePosition.y) / squareWidth), Math.round((dragPosition.x - tablePosition.x) / squareWidth));
     }
+     //删掉dragBrick
+    param.dragBrick.remove();
     if (updatePosition) {
         param.currentBrick.remove();
         //更新blockList
-        brickList.reCreate();
+        if (immediate || brickList.isEmpty()) {
+            brickList.reCreate();
+        }
         //更新table
         table.update(updatePosition, param.dragBrick.color);
         var clearPosition = table.needClear();
         if (clearPosition[0].length || clearPosition[1].length) {
-            table.clear(clearPosition[0], clearPosition[1], color.default);
-            score += clearPosition[0].length + clearPosition[1].length;
+            setTimeout(function(){table.clear(clearPosition[0], clearPosition[1])},100);//不知道为什么必须延迟才有动画效果
+            score += getScore(clearPosition[0].length + clearPosition[1].length);
             document.getElementById('score').innerHTML = score;
         }
         //game over
@@ -47,8 +54,6 @@ function up(e) {
     } else {
         param.currentBrick.show();
     }
-    //删掉dragBrick
-    param.dragBrick.remove();
     //异常鼠标事件
     document.onmouseup = null;
     document.onmousemove = null;
@@ -63,4 +68,9 @@ function move(e) {
     var ty = page.pageY(e) - param.y;
     param.dragBrick.dom.style.left = tx + "px";
     param.dragBrick.dom.style.top = ty + "px";
+}
+
+//根据单次消除的行列计算得分
+function getScore(num){
+    return Math.pow(2,(num-1));
 }
