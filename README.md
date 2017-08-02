@@ -12,7 +12,7 @@ var brickAmount = 5;
 var brickList = new BrickList(gameWidth,brickAmount);
 ```
 
-
+[在线play](https://snowhere.github.io/game/1010!/)
 
 ### TODO:
 
