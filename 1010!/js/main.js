@@ -4,8 +4,8 @@ document.getElementById('info').style.display = 'none';
  * game start
  */
 //init table
-var tableRow = 6;
-var tableCol = 6;
+var tableRow = 8;
+var tableCol = 8;
 var table = new Table(gameWidth, tableRow, tableCol);
 
 //init bircks
