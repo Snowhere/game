@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="screen-orientation" content="portrait">
+    <meta name="full-screen" content="yes">
+    <meta name="browsermode" content="application">
+    <meta name="x5-orientation" content="portrait">
+    <meta name="x5-fullscreen" content="true">
+    <meta name="x5-page-mode" content="app">
+    <title>Swing</title>
+    <style type="text/css">
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background-color: #66CCFF;
+        overflow: hidden;
+    }
+    </style>
+</head>
+
+<body>
+    <script type="text/javascript">
+    var clientWidth = document.documentElement.clientWidth;
+    var clientHeight = document.documentElement.clientHeight;
+
+    var speed = 10;
+    var distance = 0;
+    var play;
+
+    if (!window.DeviceMotionEvent || !window.DeviceOrientationEvent) {
+        alert('您的浏览器不支持重力感应和摇一摇');
+    }
+
+    var x = y = z = x1 = y1 = z1 = max = playerControl = 0,
+        flag = true;
+
+    function handleMotionEvent(event) {
+        x1 = Math.abs(event.acceleration.x)
+        x = x1 > x ? x1 : x;
+        y1 = Math.abs(event.acceleration.y)
+        y = y1 > y ? y1 : y;
+        z1 = Math.abs(event.acceleration.z)
+        z = z1 > z ? z1 : z;
+        max = x + y + z;
+        if (max > 100 && flag) { //wait 1s for max
+            flag = false;
+            setTimeout(function() {
+                speed = max/10; //max:100~300
+                window.removeEventListener('devicemotion', handleMotionEvent, false);
+                play = setInterval(start, 40);
+            }, 1000);
+        }
+    }
+
+    function deviceOrientationHandler(event) {
+        playerControl = event.gamma;
+    }
+
+    window.addEventListener('devicemotion', handleMotionEvent, false);//init speed
+    window.addEventListener('deviceorientation', deviceOrientationHandler, false); //control 
+
+    //speed = 20;
+    //play = setInterval(start, 40);
+
+    var playerWidth = 70,
+        playerHeight = 70;
+
+    function createPlayer(left, top) {
+        //var div = document.createElement('img');
+        //div.src = 'image/player.gif';
+        var div = document.createElement('div');
+        div.style.backgroundColor = 'rgb(' + Math.floor(Math.random() * 255) + ',' + Math.floor(Math.random() * 255) + ',' + Math.floor(Math.random() * 255) + ')';
+        return new Spirit(div, playerWidth, playerHeight, left, top);
+    }
+
+    var enemyWidth = 120,
+        enemyHeight = 160;
+
+    function createEnemy(left, top) {
+        //var div = document.createElement('img');
+        //div.src = 'image/enemy.png';
+        var div = document.createElement('div');
+        div.style.backgroundColor = 'rgb(' + Math.floor(Math.random() * 255) + ',' + Math.floor(Math.random() * 255) + ',' + Math.floor(Math.random() * 255) + ')';
+        return new Spirit(div, enemyWidth, enemyHeight, left, top);
+    }
+
+
+
+    var player = createPlayer((clientWidth - playerWidth) / 2, clientHeight - playerHeight - 60),
+        enemyList = [],
+        addEnemyFlag = 0,
+        enemys = 0;
+
+    function start() {
+        speed -= 0.02;
+        if (speed <= 0) {
+            stop();
+        }
+        distance += speed;
+        //add enemy
+        if (addEnemyFlag < distance / (enemyHeight+playerHeight*2)) {
+            console.log(addEnemyFlag, distance / enemyHeight);
+            addEnemyFlag++;
+            enemys++;
+            enemyList.push(createEnemy(random(0, clientWidth - enemyWidth), -enemyHeight));
+        }
+        if ((player.getX1() >= 0 && player.getX2() <= clientWidth) ||
+            (player.getX2() >= clientWidth && playerControl < 0) ||
+            (player.getX1() <= 0 && playerControl > 0)) {
+            player.update(playerControl, 0);
+        }
+        for (var i = 0; i < enemys; i++) {
+            var enemy = enemyList[i];
+            enemy.update(0, speed);
+            if (enemy.getY2() >= clientHeight + 100) {
+                enemy.remove();
+                enemyList.splice(i, 1);
+                enemys--;
+            }
+            if (boom(player, enemy)) {
+                stop();
+            }
+        }
+    }
+
+    function stop() {
+        clearInterval(play);
+        alert(Math.floor(distance/1000)+'分');
+    }
+
+    function boom(s1, s2) {
+        if (s1.getX2() < s2.getX1() || s1.getX1() > s2.getX2() || s1.getY2() < s2.getY1() || s1.getY1() > s2.getY2()) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    //util function
+    function random(min, max) {
+        return Math.floor(min + Math.random() * (max - min));
+    }
+
+    //Spirit
+    function Spirit(dom, width, height, left, top) {
+        this.dom = dom;
+        this.width = width;
+        this.height = height;
+        this.dom.style.position = 'absolute';
+        this.dom.style.width = width + 'px';
+        this.dom.style.height = height + 'px';
+        this.dom.style.left = left + 'px';
+        this.dom.style.top = top + 'px';
+        document.body.appendChild(this.dom);
+    }
+
+    Spirit.prototype.getX1 = function() {
+        return this.dom.offsetLeft;
+    }
+    Spirit.prototype.getX2 = function() {
+        return this.dom.offsetLeft + this.width;
+    }
+    Spirit.prototype.getY1 = function() {
+        return this.dom.offsetTop;
+    }
+    Spirit.prototype.getY2 = function() {
+        return this.dom.offsetTop + this.height;
+    }
+    Spirit.prototype.update = function(x, y) {
+        this.dom.style.left = (this.dom.offsetLeft + x) + 'px';
+        this.dom.style.top = (this.dom.offsetTop + y) + 'px';
+    }
+    Spirit.prototype.remove = function(x, y) {
+        document.body.removeChild(this.dom);
+    }
+    </script>
+</body>
+
+</html>

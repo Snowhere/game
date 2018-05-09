@@ -5,7 +5,91 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>1010!</title>
-    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <style type="text/css">
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    #title {
+        margin: 15px 0;
+    }
+
+    #titleInfo {
+        text-align: center;
+        font-size: 4rem;
+        font-family: Monaco, Consolas, 'Courier New';
+    }
+
+    #scoreInfo {
+        position: absolute;
+        right: 0;
+        top: 0;
+        font-size: 1rem;
+        font-family: Monaco, Consolas, 'Courier New';
+    }
+
+    #info {
+        text-align: center;
+        font-size: 1rem;
+        font-family: Monaco, Consolas, 'Courier New';
+    }
+
+    #table {
+        position: relative;
+        margin: 0 auto;
+    }
+
+    #table div,
+    #drag {
+        border-radius: 5px;
+    }
+
+    #bricks {
+        position: relative;
+        margin: 10px auto;
+    }
+
+    .c1 {
+        background-color: #7B68EE;
+    }
+
+    .c2 {
+        background-color: #FFD700;
+    }
+
+    .c3 {
+        background-color: #FFA500;
+    }
+
+    .c4 {
+        background-color: #FF3E96;
+    }
+
+    .c5 {
+        background-color: #CD4F39;
+    }
+
+    .c6 {
+        background-color: #76EE00;
+    }
+
+    .c7 {
+        background-color: #48D1CC;
+    }
+
+    .c8 {
+        background-color: #3CB371;
+    }
+
+    .c9 {
+        background-color: #00B2EE;
+    }
+
+    .default {
+        background-color: #DDDDDD;
+    }
+    </style>
 </head>
 
 <body>
@@ -15,16 +99,14 @@
     </div>
     <div id="table">
     </div>
-    <p class="info">当前有<span></span>名玩家.轮到你操作了.倒计时<span id="time"></span>秒</p>
-    <p id="gg" class="info">作者:<a href="http://snowhere.me">Snowhere</a>.感谢:<a href="http://kinice.top">kinice</a></p>
+    <p id="info">作者:<a href="http://snowhere.me">Snowhere</a>.感谢:<a href="http://kinice.top">kinice</a></p>
     <div id="bricks">
     </div>
-    <script type="text/javascript" src="js/object.js"></script>
-    <script type="text/javascript" src="js/dict.js"></script>
-    <script type="text/javascript" src="js/main.js"></script>
+    <script src="object.js"></script>
+    <script src="dict.js"></script>
     <script type="text/javascript">
     var gameWidth = document.body.clientWidth < 520 ? (document.body.clientWidth - 50) : 500;
-    document.getElementById('gg').style.display = 'none';
+    document.getElementById('info').style.display = 'none';
     /**
      * game start
      */
@@ -32,19 +114,20 @@
     var tableRow = 8;
     var tableCol = 8;
     var table = new Table(gameWidth, tableRow, tableCol);
-    time();
+
     //init bircks
     var brickAmount = 3;
     var brickList = new BrickList(gameWidth, brickAmount);
+
+    //immediate create brick
+    var immediate = false;
 
     var squareWidth = gameWidth / tableCol;
     var score = 0;
     //mouse event
     function up(e) {
         e.preventDefault();
-        if ('ontouchend' in document) {
-            e = e.touches[0];
-        }
+        if ('ontouchend' in document) { e = e.touches[0]; }
         var updatePosition = false;
         var dragPosition = getPosition(param.dragBrick.dom);
         var tablePosition = getPosition(table.dom);
@@ -53,30 +136,31 @@
         } else {
             updatePosition = table.checkNoCover(param.dragBrick, Math.round((dragPosition.y - tablePosition.y) / squareWidth), Math.round((dragPosition.x - tablePosition.x) / squareWidth));
         }
+        //删掉dragBrick
+        param.dragBrick.remove();
         if (updatePosition) {
             param.currentBrick.remove();
             //更新blockList
-            if (brickList.isEmpty()) {
+            if (immediate || brickList.isEmpty()) {
                 brickList.reCreate();
             }
             //更新table
             table.update(updatePosition, param.dragBrick.color);
             var clearPosition = table.needClear();
             if (clearPosition[0].length || clearPosition[1].length) {
-                table.clear(clearPosition[0], clearPosition[1], color.default);
-                score += clearPosition[0].length + clearPosition[1].length;
+                setTimeout(function() { table.clear(clearPosition[0], clearPosition[1]) }, 100); //不知道为什么必须延迟才有动画效果
+                score += getScore(clearPosition[0].length + clearPosition[1].length);
                 document.getElementById('score').innerHTML = score;
             }
             //game over
             var notOver = table.checkPossible(brickList);
             if (!notOver) {
-                gameover();
+                document.getElementById('titleInfo').innerHTML = 'game over';
+                document.getElementById('info').style.display = 'block';
             }
         } else {
             param.currentBrick.show();
         }
-        //删掉dragBrick
-        param.dragBrick.remove();
         //异常鼠标事件
         document.onmouseup = null;
         document.onmousemove = null;
@@ -86,30 +170,17 @@
 
     function move(e) {
         e.preventDefault();
-        if ('ontouchend' in document) {
-            e = e.touches[0];
-        }
+        if ('ontouchend' in document) { e = e.touches[0]; }
         var tx = page.pageX(e) - param.x;
         var ty = page.pageY(e) - param.y;
         param.dragBrick.dom.style.left = tx + "px";
         param.dragBrick.dom.style.top = ty + "px";
     }
 
-    function gameover() {
-        document.getElementById('titleInfo').innerHTML = 'game over';
-        document.getElementById('gg').style.display = 'block';
+    //根据单次消除的行列计算得分
+    function getScore(num) {
+        return Math.pow(2, (num - 1));
     }
-
-    var t;
-    var countTime = 7;
-
-    function time() {
-        document.getElementById('time').innerHTML = countTime--;
-        if (countTime < 0) {
-            clearInterval(t);
-        }
-    }
-    var t = self.setInterval('time()', 1000);
     </script>
 </body>
 

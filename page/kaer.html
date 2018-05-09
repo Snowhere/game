@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui" /> 
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="screen-orientation" content="portrait">
+    <meta name="full-screen" content="yes">
+    <meta name="browsermode" content="application">
+    <meta name="x5-orientation" content="portrait">
+    <meta name="x5-fullscreen" content="true">
+    <meta name="x5-page-mode" content="app">
+    <title>Kaer invoker</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        
+        .key {
+            z-index:10;
+            background-color: #CCFFFF;
+            position: absolute;
+        }
+        
+        .key div{
+            background-color: #FFFFCC;
+        }
+        .key div:active {
+            background-color: #DDDDDD;
+        }
+        
+        .show{
+            position: absolute;
+            opacity: 0;
+            filter: alpha(opacity=0);
+            font-size: 16px;
+        }
+        
+        /*random left*/
+        .normal {
+            animation: portrait 5s;
+            -webkit-animation: portrait 5s;
+        }
+        
+        
+        /*random top*/
+        .rotate {
+            transform: rotate(90deg);
+            transform-origin: right top;
+            -ms-transform: rotate(90deg);
+            -ms-transform-origin: right top;;
+            -webkit-transform: rotate(90deg);
+            -webkit-transform-origin: right top;
+        
+            animation: orientation 5s;
+            -webkit-animation: orientation 5s;
+        }
+
+        .img-rotate {
+            transform: rotate(90deg);
+            -ms-transform: rotate(90deg);
+            -webkit-transform: rotate(90deg);
+        }
+
+        /*normal*/
+        @keyframes orientation {
+            from{right: 0;opacity: 1;filter: alpha(opacity=1);}
+            to{right: 100%;opacity: 0;filter: alpha(opacity=0);}
+        }
+        @-webkit-keyframes orientation {
+            from {right: 0;opacity: 1;filter: alpha(opacity=1);}
+            to {right: 100%;opacity: 0;filter: alpha(opacity=0);}
+        }
+        
+        /*rotate*/
+        @keyframes portrait {
+            0% {top: 0px;opacity: 1;filter: alpha(opacity=1);}
+            100% {top: 100%;opacity: 0;filter: alpha(opacity=0);}
+        }
+        @-webkit-keyframes portrait {
+            from {top:0px;opacity: 1;filter: alpha(opacity=1);}
+            to {top:100%;opacity: 0;filter: alpha(opacity=0);}
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <div id="q" class="key">
+            <img></img>
+        </div>
+        <div id="w" class="key">
+            <img></img>
+        </div>
+        <div id="e" class="key">
+            <img></img>
+        </div>
+        <div id="r" class="key">
+            <img></img>
+        </div>
+        <div id="d" class="key">
+            <img></img>
+        </div>
+        <div id="f" class="key">
+            <img></img>
+        </div>
+    </div>
+
+    <div id='testdiv' style='height: 1in; left: -100%; position: absolute; top: -100%; width: 1in;'></div>
+    <script type='text/javascript'>
+    var devicePixelRatio = window.devicePixelRatio || 1;
+    dpi= document.getElementById('testdiv').offsetWidth * devicePixelRatio;
+    dpi_y = document.getElementById('testdiv').offsetHeight * devicePixelRatio;
+    console.log(devicePixelRatio,dpi,dpi_y)
+    </script> 
+
+    <script type="text/javascript">
+    var clientWidth = document.documentElement.clientWidth;
+    var clientHeight = document.documentElement.clientHeight;
+
+   /* function findFirstPositive(b, a, i, c) {
+        c=(d,e)=>e>=d?(a=d+(e-d)/2,0<b(a)&&(a==d||0>=b(a-1))?a:0>=b(a)?c(a+1,e):c(d,a-1)):-1
+        for (i = 1; 0 >= b(i);) i *= 2
+        return c(i / 2, i)|0
+    }
+    var dpi = findFirstPositive(x => matchMedia(`(max-resolution: ${x}dpi)`).matches);*/
+    console.log('dpi',dpi)//1in contain pix
+
+
+    //浏览器尺寸(in)
+    var lengthWidth = clientWidth / dpi;
+    var lengthHeight = clientHeight / dpi;
+
+    console.log('屏幕尺寸(in)', lengthWidth, lengthHeight);
+
+    var step = 0.63*dpi; //键距 px
+    var minWidth = step*4.3; //键盘区域 px
+    var minHeight = step*2; //键盘区域 px
+    
+
+    var keys = document.getElementsByClassName('key'); //6 keys
+    var positionLeft;
+    var positionTop;
+
+
+    var rotate;
+
+    //key : 
+    for(var i=0;i<6;i++){
+        keys[i].style.width =keys[i].style.height = dpi*0.61+'px';
+        keys[i].children[0].style.width =  keys[i].children[0].style.height = dpi*0.51+'px';
+        keys[i].children[0].style.margin =dpi*0.05+'px';
+    }
+    keys[0].children[0].setAttribute('src','Quas_icon.png');
+    keys[1].children[0].setAttribute('src','Wex_icon.png');
+    keys[2].children[0].setAttribute('src','Exort_icon.png');
+    keys[3].children[0].setAttribute('src','Invoke_icon.png');
+
+
+    if (lengthWidth > lengthHeight) {
+        //舒服的横屏
+        positionLeft = (clientWidth - minWidth) / 2;
+        positionTop = (clientHeight - minHeight) / 2;
+        for (var i = 0; i < 6; i++) {
+            keys[i].style.left = positionLeft + 'px';
+            keys[i].style.top = positionTop + 'px';
+            if (i == 3) {
+                positionLeft -= step * 1.7;
+                positionTop += step;
+            }
+            positionLeft += step;
+            //onclick
+            keys[i].onclick = function() {
+                action(this.getAttribute('id'));
+            }
+           
+        }
+        rotate = false;
+    } else {
+        //竖屏
+        positionLeft = clientWidth / 2;
+        positionTop = (clientHeight - minWidth) / 2;
+        for (var i = 0; i < 6; i++) {
+            keys[i].style.left = positionLeft + 'px';
+            keys[i].style.top = positionTop + 'px';
+            if (i == 3) {
+                positionTop -= step * 1.7;
+                positionLeft -= step;
+            }
+            positionTop += step;
+            //onclick
+            keys[i].onclick = function() {
+                action(this.getAttribute('id'));
+            }
+            keys[i].children[0].setAttribute('class','img-rotate');
+        }
+        rotate = true;
+    }
+    window.document.onkeydown = function(event) {
+        event = (event) ? event : window.event;
+        switch (event.keyCode) {
+            case 81:
+                action('q');
+                break;
+            case 87:
+                action('w');
+                break;
+            case 69:
+                action('e');
+                break;
+            case 82:
+                action('r');
+                break;
+            case 68:
+                action('d');
+                break;
+            case 70:
+                action('f');
+                break;
+        }
+    };
+
+    var ballList = [];
+    var skillList = [];
+    var skillTable = [];
+
+
+    function Skill(id, key, name, dialogue, img, audio) {
+        this.id = id;
+        this.key = key;
+        this.name = name;
+        this.dialogue = dialogue;
+        this.img = img;
+        this.audio = new Audio(audio);
+    }
+
+    skillTable[3] = new Skill('', 3, '急速冷却', '塞卓昂的无尽战栗', '64px-Cold_Snap_icon.png', 'https://d1u5p3l4wpay3k.cloudfront.net/dota2_gamepedia/3/31/Cold_Snap.mp3');
+    skillTable[12] = new Skill('', 12, '幽灵漫步', '米瑞特之阻碍', '64px-Ghost_Walk_icon.png', 'https://d1u5p3l4wpay3k.cloudfront.net/dota2_gamepedia/7/7a/Ghost_Walk.mp3');
+    skillTable[102] = new Skill('', 102, '寒冰之墙', '科瑞克斯的杀戮之墙', '64px-Ice_Wall_icon.png', 'https://d1u5p3l4wpay3k.cloudfront.net/dota2_gamepedia/e/e2/Ice_Wall.mp3');
+    skillTable[30] = new Skill('', 30, '电磁脉冲', '恩多利昂的恶之混动', '64px-EMP_icon.png', 'https://d1u5p3l4wpay3k.cloudfront.net/dota2_gamepedia/1/19/EMP.mp3');
+    skillTable[120] = new Skill('', 120, '灵动迅捷', '迅猛作战之魔令', '64px-Alacrity_icon.png', 'https://d1u5p3l4wpay3k.cloudfront.net/dota2_gamepedia/c/c8/Alacrity.mp3');
+    skillTable[21] = new Skill('', 21, '强袭飓风', '托纳鲁斯之爪', '64px-Tornado_icon.png', 'https://d1u5p3l4wpay3k.cloudfront.net/dota2_gamepedia/b/ba/Tornado.mp3');
+    skillTable[300] = new Skill('', 300, '阳炎冲击', '哈雷克之火葬魔咒', '64px-Sun_Strike_icon.png', 'https://d1u5p3l4wpay3k.cloudfront.net/dota2_gamepedia/b/b5/Sun_Strike.mp3');
+    skillTable[210] = new Skill('', 210, '混沌陨石', '塔拉克的天坠之火', '64px-Chaos_Meteor_icon.png', 'https://d1u5p3l4wpay3k.cloudfront.net/dota2_gamepedia/b/b6/Chaos_Meteor.mp3');
+    skillTable[201] = new Skill('', 201, '熔炉精灵', '卡尔文的窒息产物', '64px-Forge_Spirit_icon.png', 'https://d1u5p3l4wpay3k.cloudfront.net/dota2_gamepedia/5/50/Forge_Spirit.mp3');
+    skillTable[111] = new Skill('', 111, '超震声波', '布鲁冯特之无力声波', '64px-Deafening_Blast_icon.png', 'https://d1u5p3l4wpay3k.cloudfront.net/dota2_gamepedia/8/8a/Deafening_Blast.mp3');
+
+    function action(key) {
+        switch (key) {
+            case 'q':
+                ballList.unshift(1);
+                show('冰');
+                break;
+            case 'w':
+                ballList.unshift(10);
+                show('雷');
+                break;
+            case 'e':
+                ballList.unshift(100);
+                show('火');
+                break;
+            case 'r':
+                var skillKey = ballList[2] + ballList[1] + ballList[0];
+                if (skillList[0] && skillKey == skillList[0].key) {
+                    show('重复');
+                    return;
+                }
+                if (skillTable[skillKey]) {
+                    skillList.unshift(skillTable[skillKey]);
+                    show('合成【' + skillTable[skillKey].name + '】');
+                    if(keys[4].children[0].getAttribute('src')){
+                        keys[5].children[0].setAttribute('src',keys[4].children[0].getAttribute('src'));
+                    }
+                    keys[4].children[0].setAttribute('src',skillTable[skillKey].img);
+                } else {
+                    show('没有这个技能');
+                }
+                new Audio('https://hydra-media.cursecdn.com/dota2.gamepedia.com/c/c7/Invoke.mp3').play();
+                break;
+            case 'd':
+                if (skillList[0]) {
+                    userSkill(skillList[0]);
+                } else {
+                    show('不能释放这个技能');
+                }
+                break;
+            case 'f':
+                if (skillList[1]) {
+                    userSkill(skillList[1]);
+                } else {
+                    show('不能释放这个技能');
+                }
+        }
+    }
+
+    function userSkill(skill) {
+        console.log(skill.name);
+        show('【' + skill.name + '】' + skill.dialogue);
+        skill.audio.play();
+    }
+
+    //letter 16px,sentence 240px
+    function show(msg) {
+        var div = document.createElement('div');
+        var txt = document.createTextNode(msg);
+        div.appendChild(txt);
+        if (rotate) {
+            div.setAttribute('class', 'show rotate');
+        } else {
+            div.setAttribute('class', 'show normal');
+        }
+        //position
+        if (rotate) {
+            //random top
+            div.style.top = Math.random() * (clientHeight - 120) + 120 + 'px';
+        } else {
+            //random left
+            div.style.left = Math.random() * (clientWidth - 240) + 'px';
+        }
+        document.body.appendChild(div);
+    }
+    </script>
+</body>
+
+</html>
