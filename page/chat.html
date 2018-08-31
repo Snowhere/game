@@ -1,0 +1,450 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Say</title>
+    <style type="text/css">
+    * {
+        padding: 0px;
+        margin: 0px;
+    }
+    
+    body {
+        -webkit-background-size: 70px 70px;
+        -moz-background-size: 70px 70px;
+        background-size: 70px 70px;
+        /* Controls the size of the stripes */
+        -moz-box-shadow: 1px 1px 8px gray;
+        -webkit-box-shadow: 1px 1px 8px gray;
+        box-shadow: 1px 1px 8px gray;
+        background-color: #0ae;
+        background-image: -webkit-gradient(linear, 0 0, 0 100%, color-stop(.5, rgba(255, 255, 255, .2)), color-stop(.5, transparent), to(transparent));
+        background-image: -moz-linear-gradient(rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);
+        background-image: -o-linear-gradient(rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);
+        background-image: linear-gradient(rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);
+    }
+   
+      /*标题*/
+    
+    h1 {
+        width: 600px;
+        text-align: center;
+        margin: 0 auto;
+    }
+    
+    h3 {
+        width: 600px;
+        text-align: center;
+        margin: 0 auto;
+    }
+    
+    #logo_name {
+        font-family: 微软雅黑;
+        color: blue;
+        font-size: 29px;
+        display: inline;
+    }
+    /*内容区域底板*/
+    
+    #top {
+        width: 100%;
+        height: 80px;
+        margin: 0 auto;
+        text-align: center;
+        border-bottom: 1px solid yellow;
+    }
+
+    /*发送区域底板*/
+    
+    #bottom {
+        border-top: 1px solid yellow;
+        margin-top: 20px;
+        width: 800px;
+        height: 100px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    #nickname{width:60px;height:25px;}
+    #words{width:450px;height:25px;}
+    #say{width:60px;height:25px;}
+    #express_button{width:60px;height:25px;}
+    #express_div{width: 550px;margin: 0 auto;}
+    #express_div img {border: 1px solid white;}
+    /*设置显示条数区域*/
+    
+    #setlimit {
+        position: absolute;
+        top: 20px;
+        left: 40px;
+    }
+    /*在线人数*/
+    #online{
+      position: absolute;
+      right: 40px;
+      top:20px;
+    }
+    #callme{
+      display: block;
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+    
+    .wall img {
+        width: 22px;
+        height: 22px;
+    }
+    
+    .contentlist {
+        word-break: break-all;
+        word-wrap: break-word
+    }
+    /*聊天内容div包括：用户名span，时间span，内容span*/
+    /*1.聊天墙样式显示*/
+    
+    .wall div {
+        border-radius: 15px;
+        position: absolute;
+        background-color: #ffffff;
+        width: 230px;
+        height: 100px;
+        border: 1px solid blue;
+        overflow: hidden;
+        box-shadow: 10px 10px 5px #888888;
+    }
+    
+    .wall div:hover {
+        z-index: 10
+    }
+    
+    .wall div {
+        animation: pop 2s;
+        -moz-animation: pop 2s;
+        /* Firefox */
+        -webkit-animation: pop 2s;
+        /* Safari 和 Chrome */
+        -o-animation: pop 2s;
+        /* Opera */
+    }
+    
+    .wall span {
+        font-family: Courier;
+        color: black;
+        display: inline;
+    }
+    
+    .wall p {
+        font-family: 微软雅黑;
+        color: blue;
+        font-size: 20px;
+        display: inline;
+    }
+
+    /*3.下拉样式显示*/
+    
+    .scroll div {
+        background-color: #ffffff;
+        width: 600px;
+        height: 30px;
+        border: 1px solid blue;
+        word-break: break-all;
+        word-warp: break-wrap;
+        overflow: hidden;
+    }
+    
+    .scroll span {
+        font-family: Courier;
+        color: black;
+    }
+
+    /*聊天内容出现时动画*/
+    
+    @keyframes pop {from{width:0;height:0;}to{width:230px;height:100px;}}
+    @-moz-keyframes pop /*Firefox*/ {from{width:0;height:0;}to{width:230px;height:100px;}}
+    @-webkit-keyframes pop /*Safari和Chrome*/ {from{width:0;height:0;}to{width:230pxpx;height:100px;}}
+    @-o-keyframes pop /*Opera*/ {from{width:0;height:0;}to{width:230pxpx;height:100px;}}
+
+    @keyframes out {from{width:0;height:0;}to{width:100%;height:auto;}}
+    @-moz-keyframes out /*Firefox*/ {from{width:0;height:0;}to{width:100%;height:auto;}}
+    @-webkit-keyframes out /*Safari和Chrome*/ {from{width:0;height:0;}to{width:100%;height:auto;}}
+    @-o-keyframes out /*Opera*/ {from{width:0;height:0;}to{width:100%;height:auto;}}
+
+    @media screen and (max-width: 1037px){
+      h1{ display: none;}
+    }
+
+    @media screen and (max-width: 834px) and (min-width: 591px){ 
+      h1{ display: none; } 
+      #bottom { width: 500px; }
+      #nickname{width:50px;height:25px;}
+      #words{width:150px;height:25px;}
+      #say{width:30px;height:25px;}
+      #express_button{width:30px;height:25px;}
+      #express_div{width: 310px;}
+    }
+    @media screen and (max-width: 591px){ 
+      h1{display: none;} 
+      h3{display: none;} 
+      #top{height:32px}
+      #setlimit{top:0px;left: 0px;font-size:14px;}
+      #setlimit>p{display: inline;}
+      #online{top:15px;left: 0px;right:auto;font-size:14px;}
+      #bottom { position: static;width: 300px; font-size:14px;}
+      #nickname{width:50px;height:25px;}
+      #words{width:120px;height:25px;}
+      #say{width:30px;height:25px;-webkit-appearance: none;}
+      #express_button{width:30px;height:25px;-webkit-appearance: none;}
+      #express_div{width: 300px;}
+      #main {
+        margin: 2px auto;
+      }
+      .wall div {
+        border-radius: 7px;
+        position: static;
+        background-color: #ffffff;
+        width: 100%;
+        height: auto;
+        border: 0.5px solid blue;
+      }
+
+      .wall div {
+        animation: out 2s;
+        -moz-animation: out 2s;
+        -webkit-animation: out 2s;
+        -o-animation: out 2s;
+      }
+    
+      .wall span {
+        font-family: Courier;
+        color: black;
+        display: inline;
+      }
+    
+      .wall p {
+        font-family: 微软雅黑;
+        color: blue;
+        font-size: 14px;
+        display: inline;
+      }
+      #callme{
+        top: 14px;
+        font-size: 14px;
+      }
+    
+    }
+    </style>
+</head>
+
+<body>
+    <div id="top">
+        <h1>你见过这么丧心病狂的在线聊天形式吗</h1>
+        <h3><span id="logo_name">[说]</span>正式上线</h3>
+        <div id="setlimit"><p>屏幕上显示聊天记录数量：</p>
+            <input type="radio" name="limit" value="20" /> 20
+            <input type="radio" name="limit" checked="checked" value="30" /> 30
+            <input type="radio" name="limit" value="60" /> 60
+        </div>
+        <div id="online">当前在线人数：
+        <span id="onlineNum" style="color:red;"></span>        
+        </div>
+        <a id="callme" href="http://wpa.qq.com/msgrd?v=3&uin=1944699952&site=qq&menu=yes" target="_blank">反馈问题意见</a>
+    </div>
+    <!--显示聊天内容区域-->
+    <div id="main" class="wall">
+    </div>
+    <!--输入聊天内容区域-->
+    <div id="bottom">
+        <br>
+        <input id="nickname">说：<input id="words">
+        <input id="say" type="button" value="发送" >
+        <input id="express_button" type="button" value="表情">
+        <br>
+        <span id="message" style="color:red;"></span>
+        <div id="express_div" style="display:none;">
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+    <script type="text/javascript">
+    // 对Date的扩展，将 Date 转化为指定格式的String   
+    // 月(M)、日(d)、小时(h)、分(m)、秒(s)、季度(q) 可以用 1-2 个占位符，   
+    // 年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字)   
+    // 例子：   
+    // (new Date()).Format("yyyy-MM-dd hh:mm:ss.S") ==> 2006-07-02 08:09:04.423   
+    // (new Date()).Format("yyyy-M-d h:m:s.S")      ==> 2006-7-2 8:9:4.18   
+    Date.prototype.Format = function(fmt) { //author: meizz   
+        var o = {
+            "M+": this.getMonth() + 1, //月份   
+            "d+": this.getDate(), //日   
+            "h+": this.getHours(), //小时   
+            "m+": this.getMinutes(), //分   
+            "s+": this.getSeconds(), //秒   
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度   
+            "S": this.getMilliseconds() //毫秒   
+        };
+        if (/(y+)/.test(fmt))
+            fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt))
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    }
+    var socket = io();
+    var limit = 30;
+    //维护div的队列
+    var messageDivList = [];
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+
+
+    function load(msgList) {
+        $.each(messageDivList, function(index, messageDiv) {
+            $(messageDiv).remove();
+        })
+
+        messageDivList = [];
+        for (var i = msgList.length - 1; i >= 0; i--) {
+            add(msgList[i]);
+        }
+    }
+
+    function getPosition(div) {
+        div.style.top = Math.random() * (height-320) + 100 + "px";
+        div.style.left = Math.random() * (width - 400) + 60 + "px";
+    }
+
+    function add(msg) {
+        var div = document.createElement("div");
+        var main = document.getElementById("main");
+
+        getPosition(div);
+        div.className = "contentlist";
+        content = "";
+        content += "<span class='time'>[" + msg.time + "]</span><br>";
+        content += "<span class='name'>" + msg.name + "</span>";
+        content += "<p> 说 : </p>";
+        content += "<span class='content'>" + replace_express(msg.content) + "</span>";
+        div.innerHTML = content;
+
+        main.appendChild(div);
+        //维护div数组
+        messageDivList.unshift(div);
+        if (messageDivList.length > limit) {
+            $(messageDivList.pop()).remove();
+        }
+    }
+
+    //监听在线人数 
+    socket.on('chat number', function(msg) {
+        $('#onlineNum').html(msg);
+    });
+
+
+
+    //实时监听聊天数据
+    socket.on('chat message', function(msg) {
+        add(msg);
+        $("#words").focus();
+    });
+
+    //发送聊天内容
+    function saysomething() {
+        var say = $("#words").val();
+        var name = $("#nickname").val();
+        if (say == null || say.trim() == "" || say.length > 100) {
+            $("#message").html("内容不能为空，也不能过长");
+            return;
+        } else if (name.length > 20) {
+            $("#message").html("名字太长了啦");
+            return;
+        } else if (name.trim() == "" || name == null) {
+            name = "不知道是谁";
+        } {
+            socket.emit('chat message', {
+                name: name,
+                time: new Date().Format("yyyy-MM-dd hh:mm:ss"),
+                content: say
+            });
+            $("#words").val("");
+            $("#words").focus();
+        }
+    }
+
+    /*
+     *TM的正则表达式就是一种新语言，和加密一样，写匹配的时候行云流水，读匹配的时候举步维艰。
+     *替换规则:表情的代号(如"#12")-->图片标签(如"<img src='12.gif'/>")
+     */
+    function replace_express(text) {　　
+        var re = new RegExp("#([0-9]{2})", "g"); //"()"定义pattern,供后面调用,全局匹配。
+        var img_tag = text.replace(re, "<img src='$1.gif'/>"); //替换,$1取的pattern的值
+        　
+        return img_tag;
+    }
+
+    $(document).ready(function() {
+        document.getElementById("main").style.height=width>591?height-180+"px":"auto";
+        //初次载入聊天记录
+        $.getJSON('/getMessageList', {
+            num: limit
+        }, function(messageList) {
+            load(messageList);
+        });
+        //填充表情输入框
+        var str = "";
+        for (var i = 1; i <= 33; i++) {
+            var number = i;
+            if (i < 10) number = "0" + i;
+            str += "<img title='#" + number + "' class='express' src='" + number + ".gif'></img>"
+            //if (i % 17 == 0) str += "<br>"
+        }
+        str += "<br>输入框中仅仅显示的表情代号，不要介意";
+        $("#express_div").html(str);
+
+        //显示表情框
+        $("#express_button").click(function() {
+            $("#express_div").toggle("slow");
+        });
+        //添加表情
+        $(".express").click(function() {
+            $("#words").val($("#words").val() + $(this).attr("title"));
+        });
+
+        //添加发送按钮事件，并监听回车键发送
+        $("#say").click(function() {
+            saysomething();
+        });
+        $("#words").focus(function() {
+            $("#message").html("");
+        });
+        $(document).keydown(function(event) {
+            if (event.keyCode == 13) {
+                saysomething();
+
+            }
+        });
+
+        //调整屏幕显示数量
+        $(":radio").click(function() {
+            limit = $(this).val();
+            $.getJSON('/getMessageList', {
+                num: limit
+            }, function(messageList) {
+                load(messageList);
+            });
+        });
+        $(window).resize(function() {
+            width = window.innerWidth;            
+            height = window.innerHeight<500?500:window.innerHeight;
+            document.getElementById("main").style.height=width>591?height-180+"px":"auto";
+            $.each(messageDivList, function(index, div) {
+                getPosition(div);
+            })
+        });
+    });
+    </script>
+</body>
+
+</html>

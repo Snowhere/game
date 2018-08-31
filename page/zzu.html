@@ -1,0 +1,438 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="keywords" content="郑州大学,成绩单,查询,系统" />
+    <meta name="description" content="郑州大学,成绩单,查询,系统" />
+    <title>郑州大学学生成绩查询系统</title>
+    <link href="zzu-jw.css" rel="stylesheet" type="text/css">
+    <script type='text/javascript' src="https://cdn.bootcss.com/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="zzu-jw.js"></script>
+    <script type='text/javascript'>
+    //一键分享按钮代码
+    window._bd_share_config = {
+        "common": {
+            "bdSnsKey": {},
+            "bdText": "",
+            "bdMini": "2",
+            "bdPic": "",
+            "bdStyle": "0",
+            "bdSize": "16"
+        },
+        "share": {}
+    };
+    with(document) 0[(getElementsByTagName('head')[0] || body).appendChild(createElement('script')).src = 'http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion=' + ~(-new Date() / 36e5)];
+
+    //状态判断第几次登陆
+    var zhuangtai;
+
+    //学期储存最近一次编辑学期
+    var xueqi;
+
+
+    //生成页面
+    function shengcheng() {
+        //生成表头
+        $("#xuehao").html($("#xuehao_set").val());
+        $("#xingming").html($("#xingming_set").val());
+        $("#banji").html($("#banji_set").val());
+        $("#yuanxi").html($("#yuanxi_set").val());
+        $("#zhuanye").html($("#zhuanye_set").val());
+        $("#xueqi").html($("#xueqi_set").val());
+
+        //生成表尾学期链接
+        var xueqi_now = $("#xueqi_set").val();
+        var xueqi_total = $("#xueqi_total").val();
+        var xueqi_text = " ";
+        for (var i = 1; i <= xueqi_total; i++) {
+            if (i == xueqi_now)
+                xueqi_text += "<span>第" + i + "学期</span> ";
+            else
+                xueqi_text += "<a href=\"?xueqi=" + i + "\">第" + i + "学期</a> ";
+        }
+        $("#xueqi_href").html(xueqi_text);
+
+        //生成表尾打印时间
+        var myDate = formatDate('yyyy-MM-dd HH:mm:ss');
+        $("#nowtime").html(myDate);
+
+        //生成表以及统计数据
+        var table_text = "";
+        var jidian_total = 0;
+        var xuefen_total = 0;
+        var jidian_avg = 0;
+        var i = 0;
+        if ($(".clone_tr").length > 0) {
+            $(".clone_tr").each(function() {
+                var kecheng = $("#kecheng", this).val();
+                var leibie = $("#leibie", this).val();
+                var xuefen = $("#xuefen", this).val();
+                var chengji = $("#chengji", this).val();
+                var jidian = jidian_shengcheng(leibie, chengji);
+                table_text += "<tr>";
+                table_text += "<td width=\"40%\">" + kecheng + "</td>";
+                table_text += "<td width=\"17%\" align=\"center\">" + leibie + "</td>";
+                //挂科学分要加[]
+                if (chengji >= 0 && chengji < 60 || chengji == "不及格") {
+                    table_text += "<td width=\"15%\" align=\"center\">[" + xuefen + "]</td>";
+                } else {
+                    table_text += "<td width=\"15%\" align=\"center\">" + xuefen + "</td>";
+                }
+                table_text += "<td width=\"15%\" align=\"center\">" + chengji + "</td>";
+                table_text += "<td width=\"15%\" align=\"center\">" + jidian + "</td>";
+                table_text += "</tr>";
+                //任选课不计入总学分
+                if (leibie == "必修课" || leibie == "限选课") {
+                    xuefen_total += toFloat(xuefen);
+                }
+                jidian_total += toFloat(jidian * xuefen);
+            });
+            xuefen_total = toDecimal(xuefen_total);
+            jidian_total = toDecimal(jidian_total);
+            jidian_avg = toDecimal(jidian_total / xuefen_total);
+        }
+
+        $("#table_text").html(table_text);
+        $("#jidian_total").html(jidian_total);
+        $("#xuefen_total").html(xuefen_total);
+        $("#jidian_avg").html(jidian_avg);
+    }
+
+    //读取cookie函数
+    function duqu(xueqi) {
+        //把cookie里的信息先放到编辑区域，然后调用生成函数
+        $("#xuehao_set").val(getCookie("xuehao"));
+        $("#xingming_set").val(getCookie("xingming"));
+        $("#banji_set").val(getCookie("banji"));
+        $("#yuanxi_set").val(getCookie("yuanxi"));
+        $("#zhuanye_set").val(getCookie("zhuanye"));
+        $("#xueqi_set").val(xueqi);
+        $("#xueqi_total").val(getCookie("xueqi_total"));
+
+        //详细课程信息要循环遍历取出，放到编辑区     
+        var kecheng_array = getCookie("kecheng" + xueqi).split(";");
+        var leibie_array = getCookie("leibie" + xueqi).split(";");
+        var xuefen_array = getCookie("xuefen" + xueqi).split(";");
+        var chengji_array = getCookie("chengji" + xueqi).split(";");
+
+        for (var i = 1; i < kecheng_array.length; i++) {
+            var tr = $("#clone").clone(true);
+            tr.css("display", "");
+            tr.addClass("clone_tr");
+            tr.insertBefore("#footTbody");
+        }
+        $(".clone_tr").each(function(i) {
+            $("#kecheng", this).val(kecheng_array[i]);
+            $("#leibie", this).val(leibie_array[i]);
+            $("#xuefen", this).val(xuefen_array[i]);
+            $("#chengji", this).val(chengji_array[i]);
+        });
+        shengcheng();
+    }
+
+    //保存,存到cookies里
+    function baocun() {
+        shengcheng();
+        //首先取出值
+        var xuehao = $("#xuehao_set").val();
+        var xingming = $("#xingming_set").val();
+        var banji = $("#banji_set").val();
+        var yuanxi = $("#yuanxi_set").val();
+        var zhuanye = $("#zhuanye_set").val();
+        var xueqi = $("#xueqi_set").val();
+        var xueqi_total = $("#xueqi_total").val();
+
+        //多值保存到一个变量里，用;分隔
+        var kecheng = "";
+        var leibie = "";
+        var xuefen = "";
+        var chengji = "";
+        if ($(".clone_tr").length > 0) {
+            $(".clone_tr").each(function() {
+                kecheng = kecheng + $("#kecheng", this).val() + ";";
+                leibie = leibie + $("#leibie", this).val() + ";";
+                xuefen = xuefen + $("#xuefen", this).val() + ";";
+                chengji = chengji + $("#chengji", this).val() + ";";
+            });
+        }
+
+        //调用cookies函数
+        addCookie("xuehao", xuehao, 4);
+        addCookie("xingming", xingming, 4);
+        addCookie("banji", banji, 4);
+        addCookie("yuanxi", yuanxi, 4);
+        addCookie("zhuanye", zhuanye, 4);
+        addCookie("xueqi", xueqi, 4);
+        addCookie("xueqi_total", xueqi_total, 4);
+        //存储格式：kecheng2存的第二学期所有课程名，分号分隔 
+        addCookie("kecheng" + xueqi, kecheng, 4);
+        addCookie("leibie" + xueqi, leibie, 4);
+        addCookie("xuefen" + xueqi, xuefen, 4);
+        addCookie("chengji" + xueqi, chengji, 4);
+
+        alert("第" + xueqi + "学期--成绩单--保存成功");
+        //$.post("baocun.php",{xuehao:xuehao,xingming:xingming,banji:banji,yuanxi:yuanxi,zhuanye:zhuanye});
+    }
+
+    function return_keyword() {
+        return;
+        /* var top = $(event.srcElement).offset().top;
+         var left = $(event.srcElement).offset().left;     
+         $("#keyword").css("left",left);
+         $("#keyword").css("top",top+22);
+             
+         var word = event.srcElement.value;
+         if(word!=""&&word!=null){                
+             $.post("keyword.php",{keyword:word},function(data){
+                 var str = data.split(",");  
+                 t = '';  
+                 for(var i=0; i < str.length-1; i++){
+                     t += '<div>' + str[i] + '</div>';  
+                 } 
+                 $("#keyword").html(t);
+                 $("#keyword").css("display","");  
+             },"text");  
+         }    */
+    }
+
+    function finish_keyword() {
+        $("#keyword").css("display", "none");
+    }
+
+    $(document).ready(function() {
+        xueqi = 1; //默认第一学期
+        zhuangtai = 0; //表示未登录过
+        //如果没请求，获取最近一次保存的学期
+        if (getCookie("xueqi") != '') {
+            xueqi = getCookie("xueqi");
+            zhuangtai = 1;
+        }
+        //如果有请求，获取请求学期
+        if (getPar("xueqi")) {
+            xueqi = getPar("xueqi");
+            zhuangtai = 1;
+        }
+
+        //如果不是第一次使用，则直接读取cookies并生成，否则进行引导
+        if (zhuangtai)
+            $("#divD").hide(0, duqu(xueqi));
+        else
+            guide();
+
+        //为按钮添加事件   
+        $("#shengcheng").click(function() {
+            $("#divD").slideToggle("slow", shengcheng());
+        });
+        $("#baocun").click(function() {
+            $("#divD").slideUp("slow", baocun());
+        });
+        $("#yindao").click(function() {
+            guide();
+        });
+        $("#message").click(function() {
+            window.open("http://wpa.qq.com/msgrd?v=3&uin=1944699952&site=qq&menu=yes", "_blank");
+        });
+
+    });
+    </script>
+</head>
+
+<body>
+    <!--
+    输入提示，异步操作
+
+    <div id="keyword" style="background-color:#ffffff;display:none;position:absolute;">
+    </div>-->
+    <div id="mask"></div>
+    <div id="searchTip">
+        <div class="stepA">
+            <a></a><span></span></div>
+        <div class="stepB">
+            <a></a><span></span></div>
+        <div class="stepC">
+            <a></a><span></span></div>
+        <div class="stepD">
+            <a></a><span></span></div>
+        <div class="stepE">
+            <a></a><span></span></div>
+    </div>
+    <!--
+    添加部分说明：
+    两个按钮，用的a标签填充的色块
+    两个输入部分，用的table样式
+-->
+    <a id="shengcheng"></a>
+    <a id="baocun"></a>
+    <div id="divD">
+        <table id="leftTable">
+            <tr>
+                <td>
+                    <font color="yellow"><--(黄)生成</font><br>
+                    <font color="red"><--(红)保存</font>
+                </td>
+            </tr>
+            <tr>
+                <td>学号
+                    <input id="xuehao_set"></input>
+                </td>
+            </tr>
+            <tr>
+                <td>姓名
+                    <input id="xingming_set"></input>
+                </td>
+            </tr>
+            <tr>
+                <td>班级
+                    <input id="banji_set"></input>
+                </td>
+            </tr>
+            <tr>
+                <td>院系
+                    <input id="yuanxi_set"></input>
+                </td>
+            </tr>
+            <tr>
+                <td>专业
+                    <input id="zhuanye_set"></input>
+                </td>
+            </tr>
+            <tr>
+                <td>总共学期数
+                    <select id="xueqi_total">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>当前学期
+                    <select id="xueqi_set">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:center;">Made By <a href="http://wpa.qq.com/msgrd?v=3&uin=1944699952&site=qq&menu=yes" target="_blank">@2楼</a></td>
+            </tr>
+        </table>
+        <table id="addTable">
+            <tr>
+                <td colspan="5" align="center">
+                    <font id="webName"><a href="http://www.zzubox.com">【ZZU BOX】</a> 郑州大学--成绩单--制作--页面</font>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <img src="add.png" border="0" style="cursor:pointer;" onclick="addRow()" title="添加一门课程" />
+                </td>
+                <td colspan="2" align="right">
+                    <img id="yindao" border="0" style="cursor:pointer;" align="middle" src="guide.png" alt="引导" title="开始引导" />&nbsp;
+                    <img id="message" border="0" style="cursor:pointer;" align="middle" src="message.png" alt="意见反馈" title="想和我聊天？戳这里！" />&nbsp;
+                </td>
+                <td align="right" width="180px">
+                    <div class="bdsharebuttonbox" style="display:inline">
+                        <a href="#" class="bds_more" data-cmd="more"></a>
+                        <a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+                        <a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+                        <a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+                        <a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+                        <a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+                    </div>
+                </td>
+            </tr>
+            <tr id="clone" style="display: none;">
+                <td>
+                    <input type="button" value="删除" onclick="deleteRow(this)" />
+                </td>
+                <td>课程:
+                    <input id="kecheng" onkeyup="return_keyword();" onBlur="finish_keyword();" style="width:150px;">
+                </td>
+                <td>修习类别:
+                    <select id="leibie">
+                        <option value="必修课">必修课</option>
+                        <option value="限选课">限选课</option>
+                        <option value="院_任选课">院_任选课</option>
+                        <option value="校_任选课">校_任选课</option>
+                    </select>
+                </td>
+                <td>学分:
+                    <input id="xuefen" size="8" onBlur="check(this)"></input><span style="font-size:10pt;color:red"></span></td>
+                <td>成绩:
+                    <input id="chengji" size="8"></input><span style="font-size:10pt;color:red"></span></td>
+            </tr>
+            <tbody id="footTbody">
+            </tbody>
+        </table>
+    </div>
+    <!--官方成绩单页面，保留其样式，不做修改-->
+    <div id="show" style="float:left;width:100%">
+        <p align="center">
+            <font face="宋体" style="font-size: 15pt" color="#FF0000">郑州大学学生成绩单</font>
+        </p>
+        <font face="宋体" size="2">
+            <p id="info" align="center">
+                学号:<span id="xuehao"></span>&nbsp;&nbsp; 姓名:
+                <span id="xingming"></span>&nbsp;&nbsp; 班级:
+                <span id="banji"></span>&nbsp;&nbsp; 院系:
+                <span id="yuanxi"></span>&nbsp;&nbsp; 专业:
+                <span id="zhuanye"></span>&nbsp;&nbsp; 学期:
+                <span id="xueqi"></span>
+            </p>
+        </font>
+        <center>
+            <table border="1" width="567" style="border-collapse: collapse" bordercolor="#EBEBEB" cellpadding="2" cellspacing="0">
+                <tr>
+                    <td width="200" align="center"><span style="font-size: 11pt">课程</span></td>
+                    <td width="95" align="center"><span style="font-size: 11pt">修习类别</span></td>
+                    <td width="85" align="center"><span style="font-size: 11pt">学分</span></td>
+                    <td width="100" align="center"><span style="font-size: 11pt">成绩</span></td>
+                    <td width="85" align="center"><span style="font-size: 11pt">绩点</span></td>
+                </tr>
+                <tbody id="table_text">
+                </tbody>
+            </table>
+        </center>
+        <p align="center">
+            <font size="2">
+                学期总绩点：<span id="jidian_total"></span>&nbsp;&nbsp;&nbsp; 学期总学分： <span id="xuefen_total"></span>&nbsp;&nbsp;&nbsp; 学期平均绩点： <span id="jidian_avg"></span>
+            </font>
+        </p>
+        <p align="center">
+            <font face="宋体" size="2">
+                打印时间：<span id="nowtime"></span> &nbsp;&nbsp; 郑州大学教务处 <a style="text-decoration: none" href="http://jw.zzu.edu.cn/">http://jw.zzu.edu.cn</a>&nbsp;&nbsp;
+            </font>
+        </p>
+        <p align="center">
+            <font size="2">
+                <span id="xueqi_href"></span>&nbsp;&nbsp;
+                <a href="http://www.zzu.edu.cn/">退出系统</a>&nbsp;
+            </font>
+        </p>
+        <p align="center">
+            <font style="font-size: 11pt" face="宋体">特别说明：1、自2010年9月10日开始执行新的学分绩点规定。
+            </font>
+            <br>
+            <br>
+            <font style="font-size: 11pt" face="宋体">2、关于成绩记载办法请参看
+                <a style="text-decoration: none" target="_blank" href="http://jw.zzu.edu.cn/xjgl.asp">《郑州大学本科学分制学生学籍管理规定》
+        </a>有关章节。
+            </font>
+        </p>
+    </div>
+</body>
+
+</html>
