@@ -1,0 +1,233 @@
+body {
+    background-color: #CCCCFF
+}
+
+A:hover {
+    color: #FF0000;
+    text-decoration: underline
+}
+
+
+/*学渣引导*/
+
+#mask {
+    height: 100%;
+    width: 100%;
+    background: #000;
+    opacity: 0.6;
+    filter: alpha(opacity=60);
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: none;
+    z-index: 10;
+}
+
+#searchTip {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: none;
+    z-index: 10;
+}
+
+#searchTip div {
+    position: absolute;
+    display: none;
+    z-index: 10;
+}
+
+#searchTip div a {
+    background: url(next.png);
+    position: absolute;
+    width: 90px;
+    height: 36px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+#searchTip div span {
+    background: url(exit.png);
+    cursor: pointer;
+    position: absolute;
+    width: 90px;
+    height: 36px;
+    z-index: 10;
+}
+
+.stepA {
+    background: url(1.png);
+    height: 317px;
+    width: 926px;
+    top: 34px;
+    left: 12px;
+    display: block
+}
+
+.stepA a {
+    top: 113px;
+    left: 420px;
+}
+
+.stepA span {
+    top: 113px;
+    left: 540px;
+}
+
+.stepB {
+    background: url(2.png);
+    width: 886px;
+    height: 320px;
+    top: 184px;
+    left: 10px
+}
+
+.stepB a {
+    top: 112px;
+    left: 386px;
+}
+
+.stepB span {
+    top: 112px;
+    left: 506px;
+}
+
+.stepC {
+    background: url(3.png);
+    width: 905px;
+    height: 385px;
+    top: 39px;
+    left: 225px
+}
+
+.stepC a {
+    top: 183px;
+    left: 620px;
+}
+
+.stepC span {
+    top: 183px;
+    left: 740px;
+}
+
+.stepD {
+    background: url(4.png);
+    width: 614px;
+    height: 363px;
+    top: 3px;
+    left: 4px
+}
+
+.stepD a {
+    top: 294px;
+    left: 304px;
+}
+
+.stepD span {
+    top: 294px;
+    left: 424px;
+}
+
+.stepE {
+    background: url(5.png);
+    width: 527px;
+    height: 320px;
+    top: 20px;
+    left: 620px
+}
+
+.stepE a {
+    top: 235px;
+    left: 223px;
+}
+
+.stepE span {
+    top: 235px;
+    left: 223px;
+}
+
+#create {
+    width: 10px;
+    height: 18px;
+    background-color: #CCCCCC;
+    position: absolute;
+    left: 14px;
+    top: 9px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+#create:hover {
+    background-color: #FFFF00;
+}
+
+#save {
+    width: 10px;
+    height: 18px;
+    background-color: #CCCCCC;
+    position: absolute;
+    left: 14px;
+    top: 31px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+#save:hover {
+    background-color: #FF0000;
+}
+
+.slide {
+    min-width: 1200px;
+    max-height: 567px;
+    background: hsla(207, 50%, 97%, 0.4);
+    overflow: hidden;
+    -webkit-transition: all .5s cubic-bezier(0, 1, 0.5, 1);
+    transition: all .5s cubic-bezier(0, 1, 0.5, 1);
+}
+
+.slide-up {
+    max-height: 0;
+}
+
+#leftTable {
+    float: left;
+    width: 200px;
+    height: 270px;
+}
+
+#leftTable input {
+    display: inline;
+    width: 100px;
+}
+
+#addTable {
+    width: 950px;
+}
+
+#webName {
+    position: relative;
+    left: -100px;
+    font-weight: bold;
+    font-size: 150%;
+    color: #00AEAE;
+}
+
+#webName a {
+    color: #00AEAE;
+    text-decoration: none;
+}
+
+#keyword {
+    padding: 0px;
+    margin: 0px;
+    font-size: 15px;
+}
+
+#keyword div {
+    border: 1px solid red;
+    padding: 1px;
+    text-align: center;
+    min-width: 150px;
+}

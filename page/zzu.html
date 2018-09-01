@@ -1,249 +1,18 @@
-<!DOCTYPE HTML>
-<html>
+<!doctype html>
+<html ng-app="eduApp">
 
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="keywords" content="郑州大学,成绩单,查询,系统" />
-    <meta name="description" content="郑州大学,成绩单,查询,系统" />
+    <base href="edu">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>郑州大学学生成绩查询系统</title>
-    <link href="zzu-jw.css" rel="stylesheet" type="text/css">
-    <script type='text/javascript' src="https://cdn.bootcss.com/jquery/1.7.1/jquery.min.js"></script>
-    <script type="text/javascript" src="zzu-jw.js"></script>
-    <script type='text/javascript'>
-    //一键分享按钮代码
-    window._bd_share_config = {
-        "common": {
-            "bdSnsKey": {},
-            "bdText": "",
-            "bdMini": "2",
-            "bdPic": "",
-            "bdStyle": "0",
-            "bdSize": "16"
-        },
-        "share": {}
-    };
-    with(document) 0[(getElementsByTagName('head')[0] || body).appendChild(createElement('script')).src = 'http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion=' + ~(-new Date() / 36e5)];
-
-    //状态判断第几次登陆
-    var zhuangtai;
-
-    //学期储存最近一次编辑学期
-    var xueqi;
-
-
-    //生成页面
-    function shengcheng() {
-        //生成表头
-        $("#xuehao").html($("#xuehao_set").val());
-        $("#xingming").html($("#xingming_set").val());
-        $("#banji").html($("#banji_set").val());
-        $("#yuanxi").html($("#yuanxi_set").val());
-        $("#zhuanye").html($("#zhuanye_set").val());
-        $("#xueqi").html($("#xueqi_set").val());
-
-        //生成表尾学期链接
-        var xueqi_now = $("#xueqi_set").val();
-        var xueqi_total = $("#xueqi_total").val();
-        var xueqi_text = " ";
-        for (var i = 1; i <= xueqi_total; i++) {
-            if (i == xueqi_now)
-                xueqi_text += "<span>第" + i + "学期</span> ";
-            else
-                xueqi_text += "<a href=\"?xueqi=" + i + "\">第" + i + "学期</a> ";
-        }
-        $("#xueqi_href").html(xueqi_text);
-
-        //生成表尾打印时间
-        var myDate = formatDate('yyyy-MM-dd HH:mm:ss');
-        $("#nowtime").html(myDate);
-
-        //生成表以及统计数据
-        var table_text = "";
-        var jidian_total = 0;
-        var xuefen_total = 0;
-        var jidian_avg = 0;
-        var i = 0;
-        if ($(".clone_tr").length > 0) {
-            $(".clone_tr").each(function() {
-                var kecheng = $("#kecheng", this).val();
-                var leibie = $("#leibie", this).val();
-                var xuefen = $("#xuefen", this).val();
-                var chengji = $("#chengji", this).val();
-                var jidian = jidian_shengcheng(leibie, chengji);
-                table_text += "<tr>";
-                table_text += "<td width=\"40%\">" + kecheng + "</td>";
-                table_text += "<td width=\"17%\" align=\"center\">" + leibie + "</td>";
-                //挂科学分要加[]
-                if (chengji >= 0 && chengji < 60 || chengji == "不及格") {
-                    table_text += "<td width=\"15%\" align=\"center\">[" + xuefen + "]</td>";
-                } else {
-                    table_text += "<td width=\"15%\" align=\"center\">" + xuefen + "</td>";
-                }
-                table_text += "<td width=\"15%\" align=\"center\">" + chengji + "</td>";
-                table_text += "<td width=\"15%\" align=\"center\">" + jidian + "</td>";
-                table_text += "</tr>";
-                //任选课不计入总学分
-                if (leibie == "必修课" || leibie == "限选课") {
-                    xuefen_total += toFloat(xuefen);
-                }
-                jidian_total += toFloat(jidian * xuefen);
-            });
-            xuefen_total = toDecimal(xuefen_total);
-            jidian_total = toDecimal(jidian_total);
-            jidian_avg = toDecimal(jidian_total / xuefen_total);
-        }
-
-        $("#table_text").html(table_text);
-        $("#jidian_total").html(jidian_total);
-        $("#xuefen_total").html(xuefen_total);
-        $("#jidian_avg").html(jidian_avg);
-    }
-
-    //读取cookie函数
-    function duqu(xueqi) {
-        //把cookie里的信息先放到编辑区域，然后调用生成函数
-        $("#xuehao_set").val(getCookie("xuehao"));
-        $("#xingming_set").val(getCookie("xingming"));
-        $("#banji_set").val(getCookie("banji"));
-        $("#yuanxi_set").val(getCookie("yuanxi"));
-        $("#zhuanye_set").val(getCookie("zhuanye"));
-        $("#xueqi_set").val(xueqi);
-        $("#xueqi_total").val(getCookie("xueqi_total"));
-
-        //详细课程信息要循环遍历取出，放到编辑区     
-        var kecheng_array = getCookie("kecheng" + xueqi).split(";");
-        var leibie_array = getCookie("leibie" + xueqi).split(";");
-        var xuefen_array = getCookie("xuefen" + xueqi).split(";");
-        var chengji_array = getCookie("chengji" + xueqi).split(";");
-
-        for (var i = 1; i < kecheng_array.length; i++) {
-            var tr = $("#clone").clone(true);
-            tr.css("display", "");
-            tr.addClass("clone_tr");
-            tr.insertBefore("#footTbody");
-        }
-        $(".clone_tr").each(function(i) {
-            $("#kecheng", this).val(kecheng_array[i]);
-            $("#leibie", this).val(leibie_array[i]);
-            $("#xuefen", this).val(xuefen_array[i]);
-            $("#chengji", this).val(chengji_array[i]);
-        });
-        shengcheng();
-    }
-
-    //保存,存到cookies里
-    function baocun() {
-        shengcheng();
-        //首先取出值
-        var xuehao = $("#xuehao_set").val();
-        var xingming = $("#xingming_set").val();
-        var banji = $("#banji_set").val();
-        var yuanxi = $("#yuanxi_set").val();
-        var zhuanye = $("#zhuanye_set").val();
-        var xueqi = $("#xueqi_set").val();
-        var xueqi_total = $("#xueqi_total").val();
-
-        //多值保存到一个变量里，用;分隔
-        var kecheng = "";
-        var leibie = "";
-        var xuefen = "";
-        var chengji = "";
-        if ($(".clone_tr").length > 0) {
-            $(".clone_tr").each(function() {
-                kecheng = kecheng + $("#kecheng", this).val() + ";";
-                leibie = leibie + $("#leibie", this).val() + ";";
-                xuefen = xuefen + $("#xuefen", this).val() + ";";
-                chengji = chengji + $("#chengji", this).val() + ";";
-            });
-        }
-
-        //调用cookies函数
-        addCookie("xuehao", xuehao, 4);
-        addCookie("xingming", xingming, 4);
-        addCookie("banji", banji, 4);
-        addCookie("yuanxi", yuanxi, 4);
-        addCookie("zhuanye", zhuanye, 4);
-        addCookie("xueqi", xueqi, 4);
-        addCookie("xueqi_total", xueqi_total, 4);
-        //存储格式：kecheng2存的第二学期所有课程名，分号分隔 
-        addCookie("kecheng" + xueqi, kecheng, 4);
-        addCookie("leibie" + xueqi, leibie, 4);
-        addCookie("xuefen" + xueqi, xuefen, 4);
-        addCookie("chengji" + xueqi, chengji, 4);
-
-        alert("第" + xueqi + "学期--成绩单--保存成功");
-        //$.post("baocun.php",{xuehao:xuehao,xingming:xingming,banji:banji,yuanxi:yuanxi,zhuanye:zhuanye});
-    }
-
-    function return_keyword() {
-        return;
-        /* var top = $(event.srcElement).offset().top;
-         var left = $(event.srcElement).offset().left;     
-         $("#keyword").css("left",left);
-         $("#keyword").css("top",top+22);
-             
-         var word = event.srcElement.value;
-         if(word!=""&&word!=null){                
-             $.post("keyword.php",{keyword:word},function(data){
-                 var str = data.split(",");  
-                 t = '';  
-                 for(var i=0; i < str.length-1; i++){
-                     t += '<div>' + str[i] + '</div>';  
-                 } 
-                 $("#keyword").html(t);
-                 $("#keyword").css("display","");  
-             },"text");  
-         }    */
-    }
-
-    function finish_keyword() {
-        $("#keyword").css("display", "none");
-    }
-
-    $(document).ready(function() {
-        xueqi = 1; //默认第一学期
-        zhuangtai = 0; //表示未登录过
-        //如果没请求，获取最近一次保存的学期
-        if (getCookie("xueqi") != '') {
-            xueqi = getCookie("xueqi");
-            zhuangtai = 1;
-        }
-        //如果有请求，获取请求学期
-        if (getPar("xueqi")) {
-            xueqi = getPar("xueqi");
-            zhuangtai = 1;
-        }
-
-        //如果不是第一次使用，则直接读取cookies并生成，否则进行引导
-        if (zhuangtai)
-            $("#divD").hide(0, duqu(xueqi));
-        else
-            guide();
-
-        //为按钮添加事件   
-        $("#shengcheng").click(function() {
-            $("#divD").slideToggle("slow", shengcheng());
-        });
-        $("#baocun").click(function() {
-            $("#divD").slideUp("slow", baocun());
-        });
-        $("#yindao").click(function() {
-            guide();
-        });
-        $("#message").click(function() {
-            window.open("http://wpa.qq.com/msgrd?v=3&uin=1944699952&site=qq&menu=yes", "_blank");
-        });
-
-    });
-    </script>
+    <link rel="stylesheet" type="text/css" href="edu.css">
+    <script src="angular.min.js" type="text/javascript"></script>
+    <script src="angular-cookie.min.js" type="text/javascript"></script>
+    <script src="edu.js" type="text/javascript"></script>
 </head>
 
-<body>
-    <!--
-    输入提示，异步操作
-
-    <div id="keyword" style="background-color:#ffffff;display:none;position:absolute;">
-    </div>-->
+<body ng-controller="EduController">
+    <!--background mask layer and the guide layer-->
     <div id="mask"></div>
     <div id="searchTip">
         <div class="stepA">
@@ -257,91 +26,87 @@
         <div class="stepE">
             <a></a><span></span></div>
     </div>
-    <!--
-    添加部分说明：
-    两个按钮，用的a标签填充的色块
-    两个输入部分，用的table样式
--->
-    <a id="shengcheng"></a>
-    <a id="baocun"></a>
-    <div id="divD">
+    <!--two buttons :creat and save-->
+    <a id="create" ng-click="create()"></a>
+    <a id="save" ng-click="save()"></a>
+    <div class="slide" ng-class="{'slide-up': isToggle}">
         <table id="leftTable">
             <tr>
-                <td>
-                    <font color="yellow"><--(黄)生成</font><br>
-                    <font color="red"><--(红)保存</font>
+                <td colspan="2">
+                    <font color="yellow">&nbsp; --(黄按钮)生成
+                    </font>
+                    <br>
+                    <font color="red">&nbsp; --(红按钮)保存
+                    </font>
                 </td>
             </tr>
             <tr>
                 <td>学号
-                    <input id="xuehao_set"></input>
+                    <input ng-model="student.id"></input>
                 </td>
             </tr>
             <tr>
                 <td>姓名
-                    <input id="xingming_set"></input>
+                    <input ng-model="student.name"></input>
                 </td>
             </tr>
             <tr>
                 <td>班级
-                    <input id="banji_set"></input>
+                    <input ng-model="student.class"></input>
                 </td>
             </tr>
             <tr>
                 <td>院系
-                    <input id="yuanxi_set"></input>
+                    <input ng-model="student.department"></input>
                 </td>
             </tr>
             <tr>
                 <td>专业
-                    <input id="zhuanye_set"></input>
+                    <input ng-model="student.major"></input>
                 </td>
             </tr>
             <tr>
                 <td>总共学期数
-                    <select id="xueqi_total">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                    </select>
+                    <select ng-model="student.termTotal" ng-options="t for t in terms"></select>
                 </td>
             </tr>
             <tr>
                 <td>当前学期
-                    <select id="xueqi_set">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                    </select>
+                    <select ng-model="student.termNow" ng-options="t for t in terms"></select>
                 </td>
             </tr>
             <tr>
-                <td style="text-align:center;">Made By <a href="http://wpa.qq.com/msgrd?v=3&uin=1944699952&site=qq&menu=yes" target="_blank">@2楼</a></td>
+                <td>总人数
+                    <input ng-model="student.number" type="number" style="width:75px;"></input>
+                </td>
+            </tr>
+            <tr>
+                <td>专业排名
+                    <input ng-model="student.rank" type="number" style="width:75px;"></input>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:center;">特别感谢翔翔同学</a>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:center;">Made By <a href="http://wpa.qq.com/msgrd?v=3&uin=1944699952&site=qq&menu=yes" target="_blank">@二楼</a></td>
             </tr>
         </table>
         <table id="addTable">
             <tr>
                 <td colspan="5" align="center">
-                    <font id="webName"><a href="http://www.zzubox.com">【ZZU BOX】</a> 郑州大学--成绩单--制作--页面</font>
+                    <font id="webName"><a href="http://www.zzubox.com">--|ZZU-BOX|--</a> 郑州大学-成绩单-制作-页面</font>
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
-                    <img src="add.png" border="0" style="cursor:pointer;" onclick="addRow()" title="添加一门课程" />
+                <td></td>
+                <td>
+                    <img src="add.png" border="0" style="cursor:pointer;" ng-click="addCourse()" title="添加一门课程" />
                 </td>
                 <td colspan="2" align="right">
-                    <img id="yindao" border="0" style="cursor:pointer;" align="middle" src="guide.png" alt="引导" title="开始引导" />&nbsp;
-                    <img id="message" border="0" style="cursor:pointer;" align="middle" src="message.png" alt="意见反馈" title="想和我聊天？戳这里！" />&nbsp;
+                    <img id="guide" border="0" style="cursor:pointer;" align="middle" src="guide.png" alt="引导" title="开始引导" ng-click="guide()" />&nbsp;
+                    <img id="message" border="0" style="cursor:pointer;" align="middle" src="message.png" alt="意见反馈" title="想和我聊天？戳这里！" ng-click="message()" />&nbsp;
                 </td>
                 <td align="right" width="180px">
                     <div class="bdsharebuttonbox" style="display:inline">
@@ -354,15 +119,15 @@
                     </div>
                 </td>
             </tr>
-            <tr id="clone" style="display: none;">
+            <tr ng-repeat="course in courses.courseList">
                 <td>
-                    <input type="button" value="删除" onclick="deleteRow(this)" />
+                    <button ng-click="deleteCourse($index)">删除</button>
                 </td>
                 <td>课程:
-                    <input id="kecheng" onkeyup="return_keyword();" onBlur="finish_keyword();" style="width:150px;">
+                    <input ng-model="course.name" style="width:150px;">
                 </td>
                 <td>修习类别:
-                    <select id="leibie">
+                    <select ng-model="course.type">
                         <option value="必修课">必修课</option>
                         <option value="限选课">限选课</option>
                         <option value="院_任选课">院_任选课</option>
@@ -370,69 +135,157 @@
                     </select>
                 </td>
                 <td>学分:
-                    <input id="xuefen" size="8" onBlur="check(this)"></input><span style="font-size:10pt;color:red"></span></td>
+                    <input ng-model="course.credit" type="number" style="width:75px;"></input><span style="font-size:10pt;color:red"></span></td>
                 <td>成绩:
-                    <input id="chengji" size="8"></input><span style="font-size:10pt;color:red"></span></td>
+                    <input ng-model="course.score" type="number" style="width:75px;"></input><span style="font-size:10pt;color:red"></span></td>
             </tr>
-            <tbody id="footTbody">
-            </tbody>
         </table>
     </div>
-    <!--官方成绩单页面，保留其样式，不做修改-->
-    <div id="show" style="float:left;width:100%">
-        <p align="center">
-            <font face="宋体" style="font-size: 15pt" color="#FF0000">郑州大学学生成绩单</font>
-        </p>
-        <font face="宋体" size="2">
-            <p id="info" align="center">
-                学号:<span id="xuehao"></span>&nbsp;&nbsp; 姓名:
-                <span id="xingming"></span>&nbsp;&nbsp; 班级:
-                <span id="banji"></span>&nbsp;&nbsp; 院系:
-                <span id="yuanxi"></span>&nbsp;&nbsp; 专业:
-                <span id="zhuanye"></span>&nbsp;&nbsp; 学期:
-                <span id="xueqi"></span>
+    <!-- original page -->
+    <center>
+        <p style="font-size:15pt;color:#FF0000">郑州大学学生成绩单</p>
+        <p style="font-size:small">学号：{{student.id}}&nbsp;&nbsp;姓名：{{student.name}}&nbsp;&nbsp;班级：{{student.class}}&nbsp;&nbsp;院系：{{student.department}}&nbsp;&nbsp;专业：{{student.major}}&nbsp;&nbsp;学期:{{student.termNow}}</p>
+        <table border="1" width="567" style="border-collapse:collapse; text-align:center;" bordercolor="#EBEBEB" cellpadding="2" cellspacing="0">
+            <tr style="font-size: 11pt">
+                <td width="40%">课程</td>
+                <td width="17%">修习类别</td>
+                <td width="15%">学分</td>
+                <td width="15%">成绩</td>
+                <td width="15%">绩点</td>
+            </tr>
+            <tr ng-repeat="course in courses.courseList ">
+                <td align="left">{{course.name}}</td>
+                <td>{{course.type}}</td>
+                <td><span ng-show="course.fail">[</span>{{course.credit}}<span ng-show="course.fail">]</span></td>
+                <td>{{course.score}}</td>
+                <td>{{course.point}}</td>
+            </tr>
+        </table>
+        <div style="font-size:small">
+            <p>
+                学期总绩点： {{courses.pointTotal | number:1}}&nbsp;&nbsp;&nbsp;学期总学分： {{courses.creditTotal | number:1}}&nbsp;&nbsp;&nbsp;学期平均绩点： {{courses.pointAverage | number:1}}
             </p>
-        </font>
-        <center>
-            <table border="1" width="567" style="border-collapse: collapse" bordercolor="#EBEBEB" cellpadding="2" cellspacing="0">
-                <tr>
-                    <td width="200" align="center"><span style="font-size: 11pt">课程</span></td>
-                    <td width="95" align="center"><span style="font-size: 11pt">修习类别</span></td>
-                    <td width="85" align="center"><span style="font-size: 11pt">学分</span></td>
-                    <td width="100" align="center"><span style="font-size: 11pt">成绩</span></td>
-                    <td width="85" align="center"><span style="font-size: 11pt">绩点</span></td>
-                </tr>
-                <tbody id="table_text">
-                </tbody>
-            </table>
-        </center>
-        <p align="center">
-            <font size="2">
-                学期总绩点：<span id="jidian_total"></span>&nbsp;&nbsp;&nbsp; 学期总学分： <span id="xuefen_total"></span>&nbsp;&nbsp;&nbsp; 学期平均绩点： <span id="jidian_avg"></span>
-            </font>
-        </p>
-        <p align="center">
-            <font face="宋体" size="2">
-                打印时间：<span id="nowtime"></span> &nbsp;&nbsp; 郑州大学教务处 <a style="text-decoration: none" href="http://jw.zzu.edu.cn/">http://jw.zzu.edu.cn</a>&nbsp;&nbsp;
-            </font>
-        </p>
-        <p align="center">
-            <font size="2">
-                <span id="xueqi_href"></span>&nbsp;&nbsp;
-                <a href="http://www.zzu.edu.cn/">退出系统</a>&nbsp;
-            </font>
-        </p>
-        <p align="center">
-            <font style="font-size: 11pt" face="宋体">特别说明：1、自2010年9月10日开始执行新的学分绩点规定。
-            </font>
-            <br>
-            <br>
-            <font style="font-size: 11pt" face="宋体">2、关于成绩记载办法请参看
-                <a style="text-decoration: none" target="_blank" href="http://jw.zzu.edu.cn/xjgl.asp">《郑州大学本科学分制学生学籍管理规定》
-        </a>有关章节。
-            </font>
-        </p>
-    </div>
+            <p>
+                打印时间：{{student.time | date:'yyyy-MM-dd HH:mm:ss'}}&nbsp;&nbsp;郑州大学教务处 <a style="text-decoration: none" href="http://jw.zzu.edu.cn">http://jw.zzu.edu.cn</a>
+            </p>
+            <p>
+                <span ng-repeat="num in terms">
+                <a ng-if="student.termNow!=num&&num<=student.termTotal" ng-click="changeTerm(num)" ng-href="#{{num}}">第{{num}}学期</a><span ng-if="student.termNow==num&&num<=student.termTotal">第{{num}}学期</span>
+                </span>
+                &nbsp;&nbsp;<a href="http://www.zzu.edu.cn/">退出系统</a>
+            </p>
+        </div>
+        <div style="font-size:11pt">
+            <p>学业分析报告：1、截止{{student.time | date:'yyyy-MM-dd HH:mm:ss'}} 你的平均绩点为{{student.pointTotalAverage | number:4}},专业排名第{{student.rank}},专业总人数{{student.number}},请继续努力学习！</p>
+            <p>特别说明：关于成绩记载办法请参看<a style="text-decoration: none" target="_blank" href="http://jw.zzu.edu.cn/glwj/xjgl.html">《郑州大学本科学分制学生学籍管理规定》</a>有关章节。</p>
+        </div>
+    </center>
+    <script type="text/javascript">
+    /*
+     * refactoring with AngularJs!!!
+     */
+    var eduApp = angular.module('eduApp', ['ipCookie']);
+    /*
+     * '#' url hash setting
+     */
+    eduApp.config(['$locationProvider', function($locationProvider) {
+        $locationProvider.html5Mode(true);
+    }]);
+    /*
+     * Let's start the logic
+     */
+    eduApp.controller('EduController', ['$scope', 'ipCookie', '$location', '$window', function($scope, ipCookie, $location, $window) {
+        $scope.isToggle = false; //to show and hide the edit contaioner
+        $scope.terms = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; //the list of total terms number
+        //load cookies and request term number
+        $scope.student = ipCookie("student") || new Student();
+        $scope.student.termNow = $location.hash() ? parseInt($location.hash()) : 1;
+        //$scope.courses is a simple CoureseData get/put in StudentData.Easy to load and update      
+        $scope.courses = $scope.student.allCourses[$scope.student.termNow - 1] || new Courses();
+        //show guide if user never use that before(no cookie)
+        if (!ipCookie("student")) {
+            guide();
+        } else {
+            $scope.isToggle = true;
+        }
+
+        function make() {
+            //make the time
+            $scope.student.time = new Date();
+            //make the credit
+            $scope.courses.creditTotal = 0;
+            $scope.courses.pointTotal = 0;
+            $scope.courses.pointAverage = 0;
+            for (var i = 0; i < $scope.courses.courseList.length; i++) {
+                // make point of every course in courseList
+                $scope.courses.courseList[i].point = countPoint($scope.courses.courseList[i].type, $scope.courses.courseList[i].score);
+                // make the average point,total point
+                if ($scope.courses.courseList[i].type == "必修课" || $scope.courses.courseList[i].type == "限选课") {
+                    $scope.courses.creditTotal += $scope.courses.courseList[i].credit;
+                }
+                //the credit of course which failed,shuould add '[]'
+                if ($scope.courses.courseList[i].score >= 0 && $scope.courses.courseList[i].score < 60 || $scope.courses.courseList[i].score == "不及格") {
+                    $scope.courses.courseList[i].fail = true;
+                } else {
+                    $scope.courses.courseList[i].fail = false;
+                }
+                //count total/average point
+                $scope.courses.pointTotal += checkNum($scope.courses.courseList[i].point) * $scope.courses.courseList[i].credit;
+                $scope.courses.pointAverage = $scope.courses.pointTotal / $scope.courses.creditTotal;
+            }
+            //put CoursesData into StudentData
+            $scope.student.allCourses[$scope.student.termNow - 1] = $scope.courses;
+
+            // make the total credit avg
+            var pointAverage = 0;
+            var num = 0;
+            for (var i = 0; i < $scope.student.allCourses.length; i++) {
+                if ($scope.student.allCourses[i] != null && $scope.student.allCourses[i].pointAverage != 0) {
+                    pointAverage += $scope.student.allCourses[i].pointAverage;
+                    num += 1;
+                }
+            }
+            $scope.student.pointTotalAverage = pointAverage / num;
+        }
+
+        $scope.guide = function() {
+            guide();
+        }
+        $scope.create = function() {
+            $scope.isToggle = !$scope.isToggle;
+            if ($scope.isToggle) {
+                make();
+            }
+        }
+        $scope.save = function() {
+            $scope.isToggle = true;
+            make();
+            ipCookie("student", $scope.student, {
+                expires: 2000
+            });
+            $window.alert("已保存");
+        }
+        $scope.message = function() {
+            $window.open("http://wpa.qq.com/msgrd?v=3&uin=1944699952&site=qq&menu=yes", "_blank");
+        }
+        $scope.addCourse = function() {
+            $scope.courses.courseList.push(new Course());
+        }
+        $scope.deleteCourse = function(index) {
+            $scope.courses.courseList.splice(index, 1);
+        }
+        $scope.changeTerm = function(num) {
+            //if edit area is show, hide it and save current term courses
+            if (!$scope.isToggle) {
+                $scope.isToggle = !$scope.isToggle;
+                make();
+            }
+            //load request term courses 
+            $scope.student.termNow = num;
+            $scope.courses = $scope.student.allCourses[num - 1] || new Courses();
+        }
+    }]);
+    </script>
 </body>
 
 </html>
