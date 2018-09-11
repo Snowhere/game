@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Square</title>
+    <style type="text/css">
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    #table {
+        float: left;
+        position: relative;
+    }
+
+    #table div,
+    #drag {
+        border-radius: 3px;
+    }
+
+    #bricks {
+        float: right;
+        position: relative;
+    }
+
+    .c1 {
+        background-color: #7B68EE;
+    }
+
+    .c2 {
+        background-color: #FFD700;
+    }
+
+    .c3 {
+        background-color: #FFA500;
+    }
+
+    .c4 {
+        background-color: #FF3E96;
+    }
+
+    .c5 {
+        background-color: #CD4F39;
+    }
+
+    .c6 {
+        background-color: #76EE00;
+    }
+
+    .c7 {
+        background-color: #48D1CC;
+    }
+
+    .c8 {
+        background-color: #3CB371;
+    }
+
+    .c9 {
+        background-color: #00B2EE;
+    }
+
+    .default {
+        background-color: #DDDDDD;
+    }
+    </style>
+</head>
+
+<body>
+    <div id="info">
+    </div>
+    <div id="table"></div>
+    <div id="bricks"> </div>
+    <div id="buttonArea">
+        <button id="startBt">开始</button>
+        <button id="rotateBt">旋转</button>
+        <button id="reversalBt">翻转</button>
+        <button id="confirmBt">确定</button>
+        <button id="cancelBt">取消</button>
+    </div>
+    <!--  <script src="/socket.io/socket.io.js"></script> -->
+    <script src="object.js"></script>
+    <script src="dict.js"></script>
+    <script type="text/javascript">
+    // var socket = io('/square');
+
+
+    var gameWidth = document.documentElement.clientWidth;
+    var squareWidth = gameWidth / 50;
+    /**
+     * game start
+     */
+    //init table
+    var tableRow = 20;
+    var tableCol = 20;
+    var table = new Table(document.getElementById('table'), squareWidth * 20, tableRow, tableCol);
+
+    //init bircks
+    var brickAmount = 21;
+    var brickList = new BrickList(document.getElementById('bricks'), squareWidth * 25, brickAmount);
+
+    var firstBrick = true;
+    var yourTurn = true;
+    var playerColor = color.random();
+    //mouse event
+    function up(e) {
+        if (!yourTurn) {
+            param.dragBrick.remove();
+            param.currentBrick.show();
+            return;
+        }
+        e.preventDefault();
+        if ('ontouchend' in document) { e = e.touches[0]; }
+        var updatePosition = false;
+        var dragPosition = getPosition(param.dragBrick.dom);
+        var tablePosition = getPosition(table.dom);
+        if (dragPosition.x < tablePosition.x - squareWidth / 2 || dragPosition.y < tablePosition.y - squareWidth / 2 || dragPosition.x - table.dom.offsetWidth > tablePosition.x + squareWidth / 2 || dragPosition.y - table.dom.offsetHeight > tablePosition.y + squareWidth / 2) {
+            updatePosition = false; //越界
+        } else {
+            updatePosition = table.canPut(param.dragBrick, Math.round((dragPosition.y - tablePosition.y) / squareWidth), Math.round((dragPosition.x - tablePosition.x) / squareWidth));
+        }
+        //删掉dragBrick
+        param.dragBrick.remove();
+        if (updatePosition) {
+            param.currentBrick.remove();
+            table.update(updatePosition, param.dragBrick.color);
+        } else {
+            param.currentBrick.show();
+        }
+        //异常鼠标事件
+        document.onmouseup = null;
+        document.onmousemove = null;
+        document.removeEventListener('touchmove', move);
+        document.removeEventListener('touchend', up);
+    }
+
+    function move(e) {
+        e.preventDefault();
+        if ('ontouchend' in document) { e = e.touches[0]; }
+        var tx = page.pageX(e) - param.x;
+        var ty = page.pageY(e) - param.y;
+        param.dragBrick.dom.style.left = tx + "px";
+        param.dragBrick.dom.style.top = ty + "px";
+    }
+
+//旋转
+    document.getElementById('rotateBt').onclick = function() {
+        if (param.clickBrick) {
+            param.clickBrick.rotate();
+        }
+    }
+    //翻转
+    document.getElementById('reversalBt').onclick = function() {
+        if (param.clickBrick) {
+            param.clickBrick.reversal();
+        }
+    }
+    //开始
+    document.getElementById('startBt').onclick = function() {
+       //TODO
+    }
+    //确定
+    document.getElementById('confirmBt').onclick = function() {
+        //TODO
+    }
+    //取消
+    document.getElementById('cancelBt').onclick = function() {
+       //TODO
+    }
+    </script>
+</body>
+
+</html>
