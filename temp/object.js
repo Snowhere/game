@@ -5,7 +5,7 @@ function Square(id, color, fatherDom, length, top, left) {
     this.color = color;
     this.dom = document.createElement('div');
     this.dom.id = id;
-    this.dom.className = color;
+    this.dom.className = color.colorList[color];
     this.dom.style.width = length * 0.9 + 'px';
     this.dom.style.height = length * 0.9 + 'px';
     this.dom.style.top = top + 'px';
@@ -18,7 +18,7 @@ function Square(id, color, fatherDom, length, top, left) {
 //改变颜色
 Square.prototype.changeColor = function(color) {
     this.color = color;
-    this.dom.className = color;
+    this.dom.className = color.colorList[color];
 }
 
 
