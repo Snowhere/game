@@ -43,14 +43,18 @@ var color = {
     }
 };
 
-function Player(id,color,isAI,brickList){
+function Player(id,socket,color,isAI,ready,score){
+   
     this.id = id;
+    this.socket = socket;
     this.color = color;
     this.isAI = isAI;
     //init brickList
     this.brickList = matrixList.shuffle().map(function(brick){
         return new Brick(brick)
     });
+     this.ready = ready;
+    this.score = score;
 }
 Player.prototype.play = function() {
     for (n = 0; n < this.brickList.length; n++) {
@@ -63,10 +67,10 @@ Player.prototype.play = function() {
                             temp % 2 == 1 ? brickList.list[n].rotate() : brickList.list[n].reversal();
                             var result = canPut(brickList.list[n], i, j);
                             if (result) {
-                                change(result); //TODO notice
+                                change(result);
                                 brickList.list[n].state = 0;
-                                this.score += brickList.list[n].size;
-                                return;
+                               
+                                return result;
                             }
                         }
                     }
