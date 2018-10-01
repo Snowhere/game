@@ -5,7 +5,7 @@ function Square(id, color, fatherDom, length, top, left) {
     this.color = color;
     this.dom = document.createElement('div');
     this.dom.id = id;
-    this.dom.className = color.colorList[color];
+    this.dom.className = color;
     this.dom.style.width = length * 0.9 + 'px';
     this.dom.style.height = length * 0.9 + 'px';
     this.dom.style.top = top + 'px';
@@ -18,7 +18,7 @@ function Square(id, color, fatherDom, length, top, left) {
 //改变颜色
 Square.prototype.changeColor = function(color) {
     this.color = color;
-    this.dom.className = color.colorList[color];
+    this.dom.className = color;
 }
 
 
@@ -149,16 +149,17 @@ Brick.prototype.show = function() {
 /**
  * 游戏块列表
  */
-function BrickList(dom, gameWidth, brickAmout) {
+function BrickList(dom, gameWidth, brickAmout,color) {
     this.list = [];
     this.amount = brickAmout;
+    this.color =color;
     this.dom = dom;
     this.dom.style.width = gameWidth + 'px';
     this.dom.style.height = gameWidth + 'px';
 
     for (var i = 0; i < brickAmout; i++) {
         //FIXME 
-        this.list[i] = new Brick('b' + '-' + i, color.random(), matrixList[i], this.dom, squareWidth * 5, squareWidth * 5 * (i % 5), squareWidth * 5 * parseInt(i / 5), true); //0.9防止相邻两个brick相连
+        this.list[i] = new Brick('b' + '-' + i, this.color, matrixList[i], this.dom, squareWidth * 5, squareWidth * 5 * (i % 5), squareWidth * 5 * parseInt(i / 5), true); //0.9防止相邻两个brick相连
     }
 }
 

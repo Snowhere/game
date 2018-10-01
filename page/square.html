@@ -92,6 +92,9 @@
     /**
      * game start
      */
+     var firstBrick = true;
+    var yourTurn = true;
+    var colorNo = 0;
     //init table
     var tableRow = 20;
     var tableCol = 20;
@@ -99,11 +102,9 @@
 
     //init bircks
     var brickAmount = 21;
-    var brickList = new BrickList(document.getElementById('bricks'), squareWidth * 25, brickAmount);
+    var brickList = new BrickList(document.getElementById('bricks'), squareWidth * 25, brickAmount, color.colorList[colorNo]);
 
-    var firstBrick = true;
-    var yourTurn = true;
-    var playerColor = 0;
+    
     //mouse event
     function up(e) {
         if (!yourTurn) {
