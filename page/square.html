@@ -10,19 +10,20 @@
         margin: 0;
         padding: 0;
     }
-      #table {
+
+    #table {
+        float: left;
         position: relative;
-        margin-left: 10px;
     }
 
     #table div,
     #drag {
-        border-radius: 5px;
+        border-radius: 3px;
     }
 
     #bricks {
+        float: right;
         position: relative;
-        margin: 10px auto;
     }
 
     .c1 {
@@ -69,45 +70,47 @@
 
 <body>
     <div id="info">
-        <h1>Square</h1>
     </div>
     <div id="table"></div>
-    <div id="bricks"></div>
+    <div id="bricks"> </div>
     <div id="buttonArea">
-        <button>开始</button>
-        <button>旋转</button>
-        <button>翻转</button>
-        <button>确定</button>
-        <button>取消</button>
+        <button id="startBt">开始</button>
+        <button id="rotateBt">旋转</button>
+        <button id="reversalBt">翻转</button>
+        <button id="confirmBt">确定</button>
+        <button id="cancelBt">取消</button>
     </div>
-    <script src="/socket.io/socket.io.js"></script>
+    <!--  <script src="/socket.io/socket.io.js"></script> -->
     <script src="object.js"></script>
     <script src="dict.js"></script>
     <script type="text/javascript">
-    var socket = io('/square');
+    // var socket = io('/square');
 
 
     var gameWidth = document.documentElement.clientWidth;
-    console.log(gameWidth)
+    var squareWidth = gameWidth / 50;
     /**
      * game start
      */
     //init table
     var tableRow = 20;
     var tableCol = 20;
-    var table = new Table(document.getElementById('table'),gameWidth, tableRow, tableCol);
+    var table = new Table(document.getElementById('table'), squareWidth * 20, tableRow, tableCol);
 
     //init bircks
-    //var brickAmount = 3;
-    //var brickList = new BrickList(gameWidth, brickAmount);
+    var brickAmount = 21;
+    var brickList = new BrickList(document.getElementById('bricks'), squareWidth * 25, brickAmount);
 
-    //immediate create brick
-   /* var immediate = false;
-
-    var squareWidth = gameWidth / tableCol;
-    var score = 0;
+    var firstBrick = true;
+    var yourTurn = true;
+    var playerColor = 0;
     //mouse event
     function up(e) {
+        if (!yourTurn) {
+            param.dragBrick.remove();
+            param.currentBrick.show();
+            return;
+        }
         e.preventDefault();
         if ('ontouchend' in document) { e = e.touches[0]; }
         var updatePosition = false;
@@ -116,30 +119,13 @@
         if (dragPosition.x < tablePosition.x - squareWidth / 2 || dragPosition.y < tablePosition.y - squareWidth / 2 || dragPosition.x - table.dom.offsetWidth > tablePosition.x + squareWidth / 2 || dragPosition.y - table.dom.offsetHeight > tablePosition.y + squareWidth / 2) {
             updatePosition = false; //越界
         } else {
-            updatePosition = table.checkNoCover(param.dragBrick, Math.round((dragPosition.y - tablePosition.y) / squareWidth), Math.round((dragPosition.x - tablePosition.x) / squareWidth));
+            updatePosition = table.canPut(param.dragBrick, Math.round((dragPosition.y - tablePosition.y) / squareWidth), Math.round((dragPosition.x - tablePosition.x) / squareWidth));
         }
         //删掉dragBrick
         param.dragBrick.remove();
         if (updatePosition) {
             param.currentBrick.remove();
-            //更新blockList
-            if (immediate || brickList.isEmpty()) {
-                brickList.reCreate();
-            }
-            //更新table
             table.update(updatePosition, param.dragBrick.color);
-            var clearPosition = table.needClear();
-            if (clearPosition[0].length || clearPosition[1].length) {
-                setTimeout(function() { table.clear(clearPosition[0], clearPosition[1]) }, 100); //不知道为什么必须延迟才有动画效果
-                score += getScore(clearPosition[0].length + clearPosition[1].length);
-                document.getElementById('score').innerHTML = score;
-            }
-            //game over
-            var notOver = table.checkPossible(brickList);
-            if (!notOver) {
-                document.getElementById('titleInfo').innerHTML = 'game over';
-                document.getElementById('info').style.display = 'block';
-            }
         } else {
             param.currentBrick.show();
         }
@@ -159,10 +145,30 @@
         param.dragBrick.dom.style.top = ty + "px";
     }
 
-    //根据单次消除的行列计算得分
-    function getScore(num) {
-        return Math.pow(2, (num - 1));
-    }*/
+    //旋转
+    document.getElementById('rotateBt').onclick = function() {
+        if (param.clickBrick) {
+            param.clickBrick.rotate();
+        }
+    }
+    //翻转
+    document.getElementById('reversalBt').onclick = function() {
+        if (param.clickBrick) {
+            param.clickBrick.reversal();
+        }
+    }
+    //开始
+    document.getElementById('startBt').onclick = function() {
+        //TODO
+    }
+    //确定
+    document.getElementById('confirmBt').onclick = function() {
+        //TODO
+    }
+    //取消
+    document.getElementById('cancelBt').onclick = function() {
+        //TODO
+    }
     </script>
 </body>
 
