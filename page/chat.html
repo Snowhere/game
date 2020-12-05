@@ -292,7 +292,7 @@
                 fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
         return fmt;
     }
-    var socket = io();
+    var socket = io('/chat');
     var limit = 30;
     //维护div的队列
     var messageDivList = [];
